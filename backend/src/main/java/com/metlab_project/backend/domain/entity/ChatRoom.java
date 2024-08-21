@@ -24,9 +24,11 @@ public class ChatRoom {
     @Column(name = "chatroom_name", nullable = false, length = 30)
     private String chatroomName;
 
+    @Builder.Default
     @Column(name = "participant_male_count")
     private Integer participantMaleCount = 0;
 
+    @Builder.Default
     @Column(name = "participant_female_count")
     private Integer participantFemaleCount = 0;
 
@@ -40,6 +42,4 @@ public class ChatRoom {
 
     @OneToMany(mappedBy = "chatRoom")
     private List<Message> messages;
-
-    // Getters and setters
 }
