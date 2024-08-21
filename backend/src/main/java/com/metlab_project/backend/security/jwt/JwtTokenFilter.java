@@ -38,7 +38,7 @@ public class JwtTokenFilter extends OncePerRequestFilter implements Filter {
     private static final Logger logger = LoggerFactory.getLogger(JwtTokenFilter.class);
 
     private static final AntPathMatcher pathMatcher = new AntPathMatcher();
-    private static final List<String> permittedUrls = Arrays.asList(
+    private static final List<String> whiteListUrl = Arrays.asList(
             "/api/auth/login",
             "/api/auth/register"
     );
@@ -65,6 +65,7 @@ public class JwtTokenFilter extends OncePerRequestFilter implements Filter {
                 SecurityContextHolder.getContext().setAuthentication(auth);
             }
         }catch(TokenException e){
+            logger.warn("JwtException Occurred");
             handleTokenException(request,response, e, accessToken);
         }catch (Exception e){
             SecurityContextHolder.clearContext();
@@ -87,7 +88,7 @@ public class JwtTokenFilter extends OncePerRequestFilter implements Filter {
     }
 
     private boolean isPermittedUrl(String requestUri){
-        return permittedUrls.stream()
+        return whiteListUrl.stream()
                 .anyMatch(uri -> pathMatcher.match(uri, requestUri));
     }
 

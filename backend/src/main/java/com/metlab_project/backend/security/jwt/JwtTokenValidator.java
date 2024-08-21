@@ -4,7 +4,9 @@ import com.metlab_project.backend.exception.TokenException;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.SignatureException;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
+@Component
 public class JwtTokenValidator {
 
     @Value("${jwt.secret.access}")

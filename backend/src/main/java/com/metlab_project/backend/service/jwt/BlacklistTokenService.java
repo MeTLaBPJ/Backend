@@ -4,11 +4,11 @@ import com.metlab_project.backend.domain.entity.BlacklistToken;
 import com.metlab_project.backend.repository.jwt.BlacklistTokenRepository;
 import com.metlab_project.backend.security.jwt.JwtTokenProvider;
 import lombok.AllArgsConstructor;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.util.Date;
 
-@Component
+@Service
 @AllArgsConstructor
 public class BlacklistTokenService {
 
