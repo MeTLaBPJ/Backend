@@ -32,14 +32,29 @@ public class ChatRoom {
     @Column(name = "participant_female_count")
     private Integer participantFemaleCount = 0;
 
+    @Column(name = "max_user", nullable = false)
+    private Integer maxUser;
+
     private LocalDateTime deadline;
 
     @Column(length = 100)
     private String hashtags;
 
     @OneToMany(mappedBy = "chatRoom")
-    private List<User> users;
+    private List<User> maleUsers;
+
+    @OneToMany(mappedBy = "chatRoom")
+    private List<User> femaleUsers;
 
     @OneToMany(mappedBy = "chatRoom")
     private List<Message> messages;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private ChatroomStatus status;
+
+    enum ChatroomStatus {
+        WAITING,
+        ACTIVE
+    }
 }

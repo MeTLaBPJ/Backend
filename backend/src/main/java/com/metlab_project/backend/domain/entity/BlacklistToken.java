@@ -22,4 +22,5 @@ public class BlacklistToken {
 
     private String token;
     private Date expiryDate;
+    
 }
