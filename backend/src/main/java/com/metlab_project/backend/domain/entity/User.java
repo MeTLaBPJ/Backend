@@ -29,6 +29,10 @@ public class User {
     @Column(length = 20)
     private String nickname;
 
+    @Builder.Default
+    @Column(name = "ticket")
+    private Integer tickets = 1;
+
     private LocalDate birthday;
 
     @Column(length = 10)
