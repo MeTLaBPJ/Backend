@@ -24,6 +24,9 @@ public class ChatRoom {
     @Column(name = "chatroom_name", nullable = false, length = 30)
     private String chatroomName;
 
+    @Column(name = "host", nullable = false, length = 30)
+    private String host;
+
     @Builder.Default
     @Column(name = "participant_male_count")
     private Integer participantMaleCount = 0;
