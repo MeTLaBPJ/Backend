@@ -80,7 +80,8 @@ public class JwtTokenProvider {
                 claims.get("gender", String.class),
                 claims.get("studentId", String.class),
                 claims.get("college", String.class),
-                claims.get("department", String.class)
+                claims.get("department", String.class),
+                claims.get("mbti", String.class)
         );
     }
 
