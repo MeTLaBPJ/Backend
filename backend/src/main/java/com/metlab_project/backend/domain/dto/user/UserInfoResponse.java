@@ -1,20 +1,34 @@
 package com.metlab_project.backend.domain.dto.user;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import com.metlab_project.backend.domain.entity.User;
 
-@Data
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
+
+
+@Getter
+@Setter
 @Builder
-@NoArgsConstructor
-@AllArgsConstructor
+
 public class UserInfoResponse {
     private String schoolEmail;
     private String nickname;
     private String gender;
-
     private String studentId;
     private String college;
     private String department;
+
+    public static UserInfoResponse from(User user){
+        return UserInfoResponse.builder()
+        .schoolEmail(user.getSchoolEmail())
+        .nickname(user.getNickname())
+        .gender(user.getGender())
+        .studentId(user.getStudentId())
+        .college(user.getCollege())
+        .department(user.getDepartment())
+        .build();
+
+    }
+   
 }

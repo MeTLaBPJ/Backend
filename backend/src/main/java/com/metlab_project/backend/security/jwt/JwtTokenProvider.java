@@ -74,14 +74,14 @@ public class JwtTokenProvider {
                 .parseClaimsJws(accessToken)
                 .getBody();
 
-        return new UserInfoResponse(
-                claims.getSubject(),
-                claims.get("nickname", String.class),
-                claims.get("gender", String.class),
-                claims.get("studentId", String.class),
-                claims.get("college", String.class),
-                claims.get("department", String.class)
-        );
+                return UserInfoResponse.builder()
+                .schoolEmail(claims.getSubject())
+                .nickname(claims.get("nickname", String.class))
+                .gender(claims.get("gender", String.class))
+                .studentId(claims.get("studentId", String.class))
+                .college(claims.get("college", String.class))
+                .department(claims.get("department", String.class))
+                .build();
     }
 
     public String getSchoolEmailFromExpiredToken(String token){
