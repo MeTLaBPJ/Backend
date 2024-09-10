@@ -2,6 +2,7 @@ package com.metlab_project.backend.security.jwt;
 
 import com.metlab_project.backend.domain.dto.user.UserInfoResponse;
 
+import com.metlab_project.backend.domain.dto.user.UserRole;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
@@ -46,6 +47,7 @@ public class JwtTokenProvider {
         claims.put("gender", gender);
         claims.put("college", college);
         claims.put("department", department);
+        claims.put("role", UserRole.ROLE_USER);
 
         String token = Jwts.builder()
                 .setHeader(header)
@@ -67,7 +69,7 @@ public class JwtTokenProvider {
                 .compact();
     }
 
-    public UserInfoResponse getUserInfoFromJwt(String accessToken){
+    public UserInfoResponse getUserInfo(String accessToken){
         Claims claims = Jwts.parserBuilder()
                 .setSigningKey(accessKey)
                 .build()
@@ -80,7 +82,8 @@ public class JwtTokenProvider {
                 claims.get("gender", String.class),
                 claims.get("studentId", String.class),
                 claims.get("college", String.class),
-                claims.get("department", String.class)
+                claims.get("department", String.class),
+                claims.get("role", UserRole.class)
         );
     }
 
