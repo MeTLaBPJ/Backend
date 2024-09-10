@@ -2,6 +2,7 @@ package com.metlab_project.backend.security.jwt;
 
 import com.metlab_project.backend.domain.dto.user.UserInfoResponse;
 
+import com.metlab_project.backend.domain.dto.user.UserRole;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
@@ -46,6 +47,7 @@ public class JwtTokenProvider {
         claims.put("gender", gender);
         claims.put("college", college);
         claims.put("department", department);
+        claims.put("role", UserRole.ROLE_USER);
 
         String token = Jwts.builder()
                 .setHeader(header)
@@ -67,21 +69,24 @@ public class JwtTokenProvider {
                 .compact();
     }
 
-    public UserInfoResponse getUserInfoFromJwt(String accessToken){
+    public UserInfoResponse getUserInfo(String accessToken){
         Claims claims = Jwts.parserBuilder()
                 .setSigningKey(accessKey)
                 .build()
                 .parseClaimsJws(accessToken)
                 .getBody();
 
-                return UserInfoResponse.builder()
-                .schoolEmail(claims.getSubject())
-                .nickname(claims.get("nickname", String.class))
-                .gender(claims.get("gender", String.class))
-                .studentId(claims.get("studentId", String.class))
-                .college(claims.get("college", String.class))
-                .department(claims.get("department", String.class))
-                .build();
+
+        return UserInfoResponse.builder()
+            .schoolEmail(claims.getSubject())
+            .nickname(claims.get("nickname", String.class))
+            .gender(claims.get("gender", String.class))
+            .studentId(claims.get("studentId", String.class))
+            .college(claims.get("college", String.class))
+            .department(claims.get("department", String.class))
+            .role(claims.get("role", UserRole.class))
+            .build();
+
     }
 
     public String getSchoolEmailFromExpiredToken(String token){

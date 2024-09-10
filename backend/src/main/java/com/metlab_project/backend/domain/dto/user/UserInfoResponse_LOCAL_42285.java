@@ -10,6 +10,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
+
 public class UserInfoResponse {
     private String schoolEmail;
     private String nickname;
@@ -17,7 +18,6 @@ public class UserInfoResponse {
     private String studentId;
     private String college;
     private String department;
-    private UserRole role;
 
     public static UserInfoResponse from(User user){
         return UserInfoResponse.builder()
@@ -27,7 +27,8 @@ public class UserInfoResponse {
         .studentId(user.getStudentId())
         .college(user.getCollege())
         .department(user.getDepartment())
-        .role(user.getRole())
         .build();
+
     }
+   
 }
