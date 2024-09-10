@@ -105,6 +105,20 @@ public class JwtTokenProvider {
                 .getBody().getExpiration();
     }
 
+    public boolean isExpired(String token) {
+        Date expiration = getExpirationDateFromToken(token);
+        return expiration.before(new Date());
+    }
+
+    public String getCategory(String token) {
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(accessKey) // or refreshKey depending on the token type
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+        return claims.get("category", String.class);
+    }
+
     private Map<String, Object> createJwtHeader(){
         Map<String, Object> header = new HashMap<>();
         header.put("typ", "JWT");
