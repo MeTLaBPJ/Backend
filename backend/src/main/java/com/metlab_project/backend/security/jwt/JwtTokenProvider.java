@@ -2,6 +2,7 @@ package com.metlab_project.backend.security.jwt;
 
 import com.metlab_project.backend.domain.dto.user.UserInfoResponse;
 
+import com.metlab_project.backend.domain.dto.user.UserRole;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
@@ -46,6 +47,7 @@ public class JwtTokenProvider {
         claims.put("gender", gender);
         claims.put("college", college);
         claims.put("department", department);
+        claims.put("role", UserRole.ROLE_USER);
 
         String token = Jwts.builder()
                 .setHeader(header)
@@ -67,21 +69,24 @@ public class JwtTokenProvider {
                 .compact();
     }
 
-    public UserInfoResponse getUserInfoFromJwt(String accessToken){
+    public UserInfoResponse getUserInfo(String accessToken){
         Claims claims = Jwts.parserBuilder()
                 .setSigningKey(accessKey)
                 .build()
                 .parseClaimsJws(accessToken)
                 .getBody();
 
-        return new UserInfoResponse(
-                claims.getSubject(),
-                claims.get("nickname", String.class),
-                claims.get("gender", String.class),
-                claims.get("studentId", String.class),
-                claims.get("college", String.class),
-                claims.get("department", String.class)
-        );
+
+        return UserInfoResponse.builder()
+            .schoolEmail(claims.getSubject())
+            .nickname(claims.get("nickname", String.class))
+            .gender(claims.get("gender", String.class))
+            .studentId(claims.get("studentId", String.class))
+            .college(claims.get("college", String.class))
+            .department(claims.get("department", String.class))
+            .role(claims.get("role", UserRole.class))
+            .build();
+
     }
 
     public String getSchoolEmailFromExpiredToken(String token){
@@ -103,6 +108,20 @@ public class JwtTokenProvider {
                 .build()
                 .parseClaimsJws(token)
                 .getBody().getExpiration();
+    }
+
+    public boolean isExpired(String token) {
+        Date expiration = getExpirationDateFromToken(token);
+        return expiration.before(new Date());
+    }
+
+    public String getCategory(String token) {
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(accessKey) // or refreshKey depending on the token type
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+        return claims.get("category", String.class);
     }
 
     private Map<String, Object> createJwtHeader(){

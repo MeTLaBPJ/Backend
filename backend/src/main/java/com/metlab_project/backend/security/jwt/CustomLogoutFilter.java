@@ -1,0 +1,142 @@
+package com.metlab_project.backend.security.jwt;
+
+import com.metlab_project.backend.repository.user.RefreshTokenRepository;
+import com.metlab_project.backend.domain.entity.RefreshEntity;
+import com.metlab_project.backend.service.user.UserService;
+import io.jsonwebtoken.ExpiredJwtException;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.filter.GenericFilterBean;
+
+import java.io.IOException;
+
+@RequiredArgsConstructor
+@Slf4j
+public class CustomLogoutFilter extends GenericFilterBean {
+
+    private final JwtTokenProvider jwtTokenProvider; // JwtTokenProvider
+    private final RefreshTokenRepository refreshTokenRepository;
+    
+
+    @Override
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+        doFilter((HttpServletRequest) request, (HttpServletResponse) response, chain);
+    }
+
+    /**
+     * 로그아웃 필터
+     * @param request
+     * @param response
+     * @param filterChain
+     * @throws IOException
+     * @throws ServletException
+     */
+    private void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws IOException, ServletException {
+
+        // Logout Request 검증
+        if (verifiedLogoutRequest(request, response, filterChain)) return;
+
+        // Cookie에서 Refresh Token 가져오기
+        String refreshToken = null;
+        Cookie[] cookies = request.getCookies();
+        if (cookies == null) {
+            doStatusBadRequest("[doFilter] cookies are null", response);
+            return;
+        }
+        for (Cookie cookie : cookies) {
+            if ("refresh".equals(cookie.getName())) {
+                refreshToken = cookie.getValue();
+            }
+        }
+
+        // Refresh Token 검증
+        if (!validateRefreshToken(response, refreshToken)) return;
+
+        // 로그아웃 진행
+        log.info("[doFilter] Logging out");
+
+        // Refresh 토큰 DB에서 제거
+        refreshTokenRepository.findByToken(refreshToken).ifPresent(refreshTokenRepository::delete);
+
+        // Refresh 토큰 Cookie 삭제
+        Cookie cookie = new Cookie("refresh", null);
+        cookie.setMaxAge(0);
+        cookie.setPath("/");
+
+        response.addCookie(cookie);
+        response.setStatus(HttpServletResponse.SC_OK);
+    }
+
+    /**
+     * 로그아웃 요청 검증
+     * @param request
+     * @param response
+     * @param filterChain
+     * @return boolean
+     * @throws IOException
+     * @throws ServletException
+     */
+    private static boolean verifiedLogoutRequest(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws IOException, ServletException {
+        // 로그아웃 요청이 /api/users/logout으로 와야 하고, 메서드는 POST여야 함
+        final String requestUri = request.getRequestURI();
+        if (!"/api/users/logout".equals(requestUri)) {
+            filterChain.doFilter(request, response);
+            return true;
+        }
+        final String requestMethod = request.getMethod();
+        if (!"POST".equals(requestMethod)) {
+            filterChain.doFilter(request, response);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Refresh Token 검증
+     * @param response
+     * @param refreshToken
+     * @return
+     */
+    private boolean validateRefreshToken(HttpServletResponse response, String refreshToken) {
+        // refresh token이 없는 경우
+        if (refreshToken == null) {
+            doStatusBadRequest("[doFilter] refreshToken is null", response);
+            return false;
+        }
+
+        // 토큰 만료 검증
+        try {
+            jwtTokenProvider.isExpired(refreshToken);
+        } catch (ExpiredJwtException e) {
+            doStatusBadRequest("[doFilter] refreshToken is expired", response);
+            return false;
+        }
+
+        // 토큰이 refresh 토큰인지 확인
+        String category = jwtTokenProvider.getCategory(refreshToken);
+        if (!"refresh".equals(category)) {
+            doStatusBadRequest("[doFilter] token is not a refresh token", response);
+            return false;
+        }
+
+        // DB에 저장되어 있는지 확인
+        if (!refreshTokenRepository.existsByToken(refreshToken)) {
+            doStatusBadRequest("[doFilter] refreshToken does not exist in repository", response);
+            return false;
+        }
+
+        return true;
+    }
+
+    private static void doStatusBadRequest(String msg, HttpServletResponse response) {
+        log.info(msg);
+        response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+    }
+}
