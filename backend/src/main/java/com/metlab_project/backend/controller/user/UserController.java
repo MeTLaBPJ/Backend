@@ -23,25 +23,14 @@ public class UserController {
 
     // 유저 정보 가져옴
     @GetMapping("/{schoolEmail}")
-    public ResponseEntity<?> getUserInfo(@PathVariable String schoolEmail) {
-        try {
-            UserInfoResponse userInfo = userService.getUserInfoBySchoolEmail(schoolEmail);
-            return new ResponseEntity<>(userInfo, HttpStatus.OK);
-        } catch (EntityNotFoundException ex) {
-            return new ResponseEntity<>("User not found", HttpStatus.NOT_FOUND);
-        }
+    public UserInfoResponse getUserInfo(@PathVariable String schoolEmail) {
+        return userService.getUserInfoBySchoolEmail(schoolEmail);
     }
+
 
     // 유저 정보 수정
     @PutMapping("/{schoolEmail}")
-    public ResponseEntity<?> updateUserInfo(@PathVariable String schoolEmail, @RequestBody UserInfoResponse updatedUserInfo) {
-        try {
-            UserInfoResponse updatedUser = userService.updateUserInfo(schoolEmail, updatedUserInfo);
-            return new ResponseEntity<>(updatedUser, HttpStatus.OK);
-        } catch (EntityNotFoundException ex) {
-            return new ResponseEntity<>("User not found", HttpStatus.NOT_FOUND);
-        } catch (IllegalArgumentException ex) {
-            return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
-        }
+    public UserInfoResponse updateUserInfo(@PathVariable String schoolEmail, @RequestBody UserInfoResponse updatedUserInfo) {
+        return userService.updateUserInfo(schoolEmail, updatedUserInfo);
     }
 }
