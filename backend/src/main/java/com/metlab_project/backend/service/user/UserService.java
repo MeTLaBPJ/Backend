@@ -4,6 +4,7 @@ import com.metlab_project.backend.domain.dto.user.UserInfoResponse;
 import com.metlab_project.backend.domain.entity.User;
 import com.metlab_project.backend.repository.user.UserRepository;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.security.authentication.BadCredentialsException;
@@ -27,6 +28,36 @@ public class UserService {
                 .studentId(user.getStudentId())
                 .college(user.getCollege())
                 .department(user.getDepartment())
+                .mbti(user.getMbti() != null ? user.getMbti() : "Unknown")
+                .build();
+    }
+
+    public UserInfoResponse updateUserInfo(String schoolEmail, UserInfoResponse updatedUserInfo) {
+        User user = userRepository.findBySchoolEmail(schoolEmail)
+                .orElseThrow(() -> new EntityNotFoundException("Invalid Email: " + schoolEmail));
+
+        // 필드 유효성 검사
+        if (updatedUserInfo.getNickname() == null || updatedUserInfo.getNickname().isEmpty()) {
+                throw new IllegalArgumentException("Nickname cannot be empty");
+        }
+
+        // 유저 정보 업데이트
+        user.setNickname(updatedUserInfo.getNickname());
+        user.setGender(updatedUserInfo.getGender());
+        user.setMbti(updatedUserInfo.getMbti());
+
+        // 변경 사항을 저장
+        userRepository.save(user);
+
+        // 업데이트된 정보 반환
+        return UserInfoResponse.builder()
+                .schoolEmail(user.getSchoolEmail())
+                .nickname(user.getNickname())
+                .gender(user.getGender())
+                .studentId(user.getStudentId())
+                .college(user.getCollege())
+                .department(user.getDepartment())
+                .mbti(user.getMbti() != null ? user.getMbti() : "Unknown")
                 .build();
     }
 

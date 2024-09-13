@@ -17,4 +17,5 @@ public class UserInfoResponse {
     private String studentId;
     private String college;
     private String department;
+    private String mbti;
 }
