@@ -1,4 +1,4 @@
-package com.metlab_project.backend.domain.dto.chatroom;
+package com.metlab_project.backend.domain.dto.chatroom.req;
 
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;

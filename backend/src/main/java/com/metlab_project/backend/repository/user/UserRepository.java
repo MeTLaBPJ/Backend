@@ -1,6 +1,6 @@
 package com.metlab_project.backend.repository.user;
 
-import com.metlab_project.backend.domain.entity.User;
+import com.metlab_project.backend.domain.entity.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

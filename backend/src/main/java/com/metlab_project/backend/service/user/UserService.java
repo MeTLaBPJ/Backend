@@ -1,7 +1,7 @@
 package com.metlab_project.backend.service.user;
 
-import com.metlab_project.backend.domain.dto.user.UserInfoResponse;
-import com.metlab_project.backend.domain.entity.User;
+import com.metlab_project.backend.domain.dto.user.res.UserInfoResponse;
+import com.metlab_project.backend.domain.entity.user.User;
 import com.metlab_project.backend.repository.user.UserRepository;
 
 import jakarta.persistence.EntityNotFoundException;
@@ -30,6 +30,7 @@ public class UserService {
                 .department(user.getDepartment())
                 .mbti(user.getMbti() != null ? user.getMbti() : "Unknown")
                 .build();
+
     }
 
     public UserInfoResponse updateUserInfo(String schoolEmail, UserInfoResponse updatedUserInfo) {

@@ -1,4 +1,4 @@
-package com.metlab_project.backend.domain.entity;
+package com.metlab_project.backend.domain.entity.jwt;
 
 import java.util.Date;
 

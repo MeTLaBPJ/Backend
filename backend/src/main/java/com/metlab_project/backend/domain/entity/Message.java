@@ -1,5 +1,6 @@
 package com.metlab_project.backend.domain.entity;
 
+import com.metlab_project.backend.domain.entity.user.User;
 import jakarta.persistence.*;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
