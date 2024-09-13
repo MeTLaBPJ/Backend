@@ -1,5 +1,6 @@
-package com.metlab_project.backend.domain.entity;
+package com.metlab_project.backend.domain.entity.user;
 
+import com.metlab_project.backend.domain.entity.ChatRoom;
 import jakarta.persistence.*;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -61,6 +62,8 @@ public class User {
     private String refreshtoken;
 
     private Boolean isblocked;
+
+    private UserRole role;
 
     @ManyToOne
     @JoinColumn(name = "chatroom_id", insertable = false, updatable = false)

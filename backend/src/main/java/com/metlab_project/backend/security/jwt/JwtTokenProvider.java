@@ -1,13 +1,14 @@
 package com.metlab_project.backend.security.jwt;
 
-import com.metlab_project.backend.domain.dto.user.UserInfoResponse;
-
+import com.metlab_project.backend.domain.dto.user.res.UserInfoResponse;
+import com.metlab_project.backend.domain.entity.user.UserRole;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
@@ -29,63 +30,20 @@ public class JwtTokenProvider {
         this.refreshKey = Keys.hmacShaKeyFor(refreshKey.getBytes());
     }
 
-    public String generateAccessToken(String schoolEmail, String nickname, String gender, String studentId, String college, String department){
-        // 1. Header
-        Map<String, Object> header = createJwtHeader();
-
-        // 2. PayLoad
-        Date now = new Date();
-        Claims claims = Jwts.claims()
-                .setIssuer("INU_INPPY")
-                .setIssuedAt(now)
-                .setSubject(schoolEmail)
-                .setExpiration(new Date(now.getTime() + ACCESS_TOKEN_VALIDITY_TIME));
-
-        claims.put("studentId", studentId);
-        claims.put("nickname", nickname);
-        claims.put("gender", gender);
-        claims.put("college", college);
-        claims.put("department", department);
-
-        String token = Jwts.builder()
-                .setHeader(header)
-                .setClaims(claims)
-                .signWith(accessKey)
-                .compact();
-
-        return token;
-    }
-
-    public String generateRefreshToken(String schoolEmail){
-        Date now = new Date();
-        return Jwts.builder()
-                .setIssuer("INU_INPPY")
-                .setIssuedAt(now)
-                .setSubject(schoolEmail)
-                .setExpiration(new Date(now.getTime() + REFRESH_TOKEN_VALIDITY_TIME))
-                .signWith(refreshKey)
-                .compact();
-    }
-
-    public UserInfoResponse getUserInfoFromJwt(String accessToken){
+    public UserInfoResponse getUserInfo(String accessToken) {
         Claims claims = Jwts.parserBuilder()
                 .setSigningKey(accessKey)
                 .build()
                 .parseClaimsJws(accessToken)
                 .getBody();
 
-        return new UserInfoResponse(
-                claims.getSubject(),
-                claims.get("nickname", String.class),
-                claims.get("gender", String.class),
-                claims.get("studentId", String.class),
-                claims.get("college", String.class),
-                claims.get("department", String.class),
-                claims.get("mbti", String.class)
-        );
+        String schoolEmail = claims.getSubject();
+        UserRole role = UserRole.valueOf(claims.get("role", String.class));
+
+        return new UserInfoResponse(schoolEmail, role);
     }
 
-    public String getSchoolEmailFromExpiredToken(String token){
+    public String getSchoolEmailFromExpiredToken(String token) {
         try {
             Claims claims = Jwts.parserBuilder()
                     .setSigningKey(accessKey)
@@ -98,7 +56,7 @@ public class JwtTokenProvider {
         }
     }
 
-    public Date getExpirationDateFromToken(String token){
+    public Date getExpirationDateFromToken(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(accessKey)
                 .build()
@@ -106,7 +64,46 @@ public class JwtTokenProvider {
                 .getBody().getExpiration();
     }
 
-    private Map<String, Object> createJwtHeader(){
+    public String generateAccessToken(String schoolEmail) {
+        Map<String, Object> header = createJwtHeader();
+
+        Date now = new Date();
+        Claims claims = Jwts.claims()
+                .setIssuer("INU_INPPY")
+                .setIssuedAt(now)
+                .setSubject(schoolEmail)
+                .setExpiration(new Date(now.getTime() + ACCESS_TOKEN_VALIDITY_TIME));
+        claims.put("role", UserRole.ROLE_USER.toString());
+
+        return Jwts.builder()
+                .setHeader(header)
+                .setClaims(claims)
+                .signWith(accessKey)
+                .compact();
+    }
+
+    public String generateRefreshToken(String schoolEmail) {
+        Date now = new Date();
+        return Jwts.builder()
+                .setIssuer("INU_INPPY")
+                .setIssuedAt(now)
+                .setSubject(schoolEmail)
+                .setExpiration(new Date(now.getTime() + REFRESH_TOKEN_VALIDITY_TIME))
+                .signWith(refreshKey)
+                .compact();
+    }
+
+    public ResponseCookie generateRefreshTokenCookie(String refreshToken) {
+        return ResponseCookie.from("REFRESH_TOKEN", refreshToken)
+                .httpOnly(true)
+                //.secure(true) // HTTPS를 사용하는 경우에만 true로 설정
+                .path("/")
+                .maxAge(REFRESH_TOKEN_VALIDITY_TIME / 1000) // 쿠키 유효 기간 (초 단위)
+                //.sameSite("Strict")
+                .build();
+    }
+
+    private Map<String, Object> createJwtHeader() {
         Map<String, Object> header = new HashMap<>();
         header.put("typ", "JWT");
         header.put("alg", "HS256");

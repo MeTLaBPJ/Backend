@@ -1,6 +1,6 @@
 package com.metlab_project.backend.service.jwt;
 
-import com.metlab_project.backend.domain.entity.BlacklistToken;
+import com.metlab_project.backend.domain.entity.jwt.BlacklistToken;
 import com.metlab_project.backend.repository.jwt.BlacklistTokenRepository;
 import com.metlab_project.backend.security.jwt.JwtTokenProvider;
 import lombok.AllArgsConstructor;
