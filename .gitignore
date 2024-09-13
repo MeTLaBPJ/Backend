@@ -199,3 +199,9 @@ README.html
 *.iml
 .idea
 .exercism
+
+../.vscode/
+../.idea/
+
+.vscode/
+.idea/
