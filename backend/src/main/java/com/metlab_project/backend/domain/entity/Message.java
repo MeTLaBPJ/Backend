@@ -21,11 +21,17 @@ public class Message {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "user_id", nullable = false)
-    private Integer userId;
+    @Column(name = "type")
+    private MessageType type;
+
+    @Column(name = "school_Email", nullable = false)
+    private String schoolEmail;
 
     @Column(name = "chatroom_id", nullable = false)
     private Integer chatroomId;
+
+    @Column(name = "nickname", nullable = false)
+    private String nickname;
 
     @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
@@ -34,10 +40,17 @@ public class Message {
     private LocalDateTime createdAt;
 
     @ManyToOne
-    @JoinColumn(name = "user_id", insertable = false, updatable = false)
+    @JoinColumn(name = "school_Email", insertable = false, updatable = false)
     private User user;
 
     @ManyToOne
     @JoinColumn(name = "chatroom_id", insertable = false, updatable = false)
     private ChatRoom chatRoom;
+
+    private enum MessageType {
+        CHAT,
+        JOIN,
+        LEAVE,
+        START
+    }
 }

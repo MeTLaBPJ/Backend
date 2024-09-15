@@ -29,6 +29,7 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.springframework.boot:spring-boot-starter-websocket'
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+	implementation 'org.springframework.boot:spring-boot-devtools'
 
 	// Database
 	implementation 'org.mariadb.jdbc:mariadb-java-client'
@@ -47,6 +48,9 @@ dependencies {
 	// Lombok
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
+
+	//WebSocket
+	implementation 'org.springframework.boot:spring-boot-starter-websocket'
 
 	// Test dependencies
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'

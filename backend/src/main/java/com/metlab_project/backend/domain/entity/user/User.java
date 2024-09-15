@@ -9,6 +9,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Entity
 @Builder
@@ -55,7 +56,7 @@ public class User {
     private String bio;
 
     @Column(name = "chatroom_id")
-    private Integer chatroomId;
+    private List<Integer> chatroomIdList;
 
     private String blacklist;
 
