@@ -2,13 +2,13 @@ package com.metlab_project.backend.domain.entity.user;
 
 import com.metlab_project.backend.domain.entity.ChatRoom;
 import jakarta.persistence.*;
-import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -55,9 +55,6 @@ public class User {
     @Column(columnDefinition = "TEXT")
     private String bio;
 
-    @Column(name = "chatroom_id")
-    private List<Integer> chatroomIdList;
-
     private String blacklist;
 
     private String refreshtoken;
@@ -66,8 +63,21 @@ public class User {
 
     private UserRole role;
 
-    @ManyToOne
-    @JoinColumn(name = "chatroom_id", insertable = false, updatable = false)
-    private ChatRoom chatRoom;
+    @ManyToMany
+    @JoinTable(
+            name = "user_chatroom",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "chatroom_id")
+    )
+    private List<ChatRoom> chatRooms = new ArrayList<>();
 
+    public void addChatRoom(ChatRoom chatRoom) {
+        this.chatRooms.add(chatRoom);
+        chatRoom.getUsers().add(this);
+    }
+
+    public void removeChatRoom(ChatRoom chatRoom) {
+        this.chatRooms.remove(chatRoom);
+        chatRoom.getUsers().remove(this);
+    }
 }

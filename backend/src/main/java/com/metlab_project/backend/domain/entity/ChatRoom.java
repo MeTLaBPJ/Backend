@@ -2,13 +2,13 @@ package com.metlab_project.backend.domain.entity;
 
 import com.metlab_project.backend.domain.entity.user.User;
 import jakarta.persistence.*;
-import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -48,14 +48,24 @@ public class ChatRoom {
     @Column(length = 100)
     private String hashtags;
 
-    @OneToMany(mappedBy = "chatRoom")
-    private List<User> users;
+    @ManyToMany(mappedBy = "chatRooms")
+    private List<User> users = new ArrayList<>();
 
     @OneToMany(mappedBy = "chatRoom")
     private List<Message> messages;
 
-    public enum Status{
+    public enum Status {
         WAITING,
         ACTIVE
+    }
+
+    public void addUser(User user) {
+        this.users.add(user);
+        user.getChatRooms().add(this);
+    }
+
+    public void removeUser(User user) {
+        this.users.remove(user);
+        user.getChatRooms().remove(this);
     }
 }

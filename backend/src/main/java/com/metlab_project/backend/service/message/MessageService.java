@@ -10,6 +10,7 @@ import com.metlab_project.backend.repository.message.MessageRepository;
 import com.metlab_project.backend.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -19,6 +20,7 @@ public class MessageService {
     private final ChatRoomRepository chatRoomRepository;
     private final UserRepository userRepository;
 
+    @Transactional
     public Message handleJoinMessage(Integer chatroomId, Message message, String schoolEmail) {
         Message savedMessage = settingMessage(message, chatroomId, schoolEmail);
         messageRepository.save(savedMessage);
@@ -28,7 +30,7 @@ public class MessageService {
         ChatRoom chatRoom = chatRoomRepository.findById(chatroomId)
                 .orElseThrow(() -> new CustomException(CustomErrorCode.CHATROOM_NOT_FOUND, "Chat room with ID " + chatroomId + " not found"));
 
-        chatRoom.getUsers().add(user);
+        user.addChatRoom(chatRoom);
 
         if ("MALE".equals(user.getGender())) {
             chatRoom.setParticipantMaleCount(chatRoom.getParticipantMaleCount() + 1);
@@ -37,11 +39,14 @@ public class MessageService {
         }
 
         user.setTickets(user.getTickets() - 1);
-        user.setChatRoom(chatRoom); // TODO 채팅룸 아이디 리스트로 바꾸기(User 객체)
+
+        userRepository.save(user);
+        chatRoomRepository.save(chatRoom);
 
         return savedMessage;
     }
 
+    @Transactional
     public Message handleLeaveMessage(Integer chatroomId, Message message, String schoolEmail) {
         Message savedMessage = settingMessage(message, chatroomId, schoolEmail);
         messageRepository.save(savedMessage);
@@ -51,7 +56,7 @@ public class MessageService {
         ChatRoom chatRoom = chatRoomRepository.findById(chatroomId)
                 .orElseThrow(() -> new CustomException(CustomErrorCode.CHATROOM_NOT_FOUND, "Chat room with ID " + chatroomId + " not found"));
 
-        chatRoom.getUsers().remove(user);
+        user.removeChatRoom(chatRoom);
 
         if ("MALE".equals(user.getGender())) {
             chatRoom.setParticipantMaleCount(chatRoom.getParticipantMaleCount() - 1);
@@ -59,26 +64,28 @@ public class MessageService {
             chatRoom.setParticipantFemaleCount(chatRoom.getParticipantFemaleCount() - 1);
         }
 
-        user.setChatRoom(null); // TODO 채팅룸 아이디 리스트로 바꾸기(User 객체)
+        userRepository.save(user);
+        chatRoomRepository.save(chatRoom);
 
         return savedMessage;
     }
 
+    @Transactional
     public Message handleSendMessage(Integer chatroomId, Message message, String schoolEmail) {
-        Message saveMessage = settingMessage(message, chatroomId, schoolEmail);
-        return messageRepository.save(saveMessage);
+        Message savedMessage = settingMessage(message, chatroomId, schoolEmail);
+        return messageRepository.save(savedMessage);
     }
 
+    @Transactional
     public Message handleStartMessage(Integer chatroomId, Message message, String schoolEmail) {
-        Message saveMessage = settingMessage(message, chatroomId, schoolEmail);
+        Message savedMessage = settingMessage(message, chatroomId, schoolEmail);
 
         ChatRoom chatRoom = chatRoomRepository.findById(chatroomId)
                 .orElseThrow(() -> new CustomException(CustomErrorCode.CHATROOM_NOT_FOUND, "Chat room with ID " + chatroomId + " not found"));
 
-
         int totalParticipants = chatRoom.getParticipantMaleCount() + chatRoom.getParticipantFemaleCount();
         if (totalParticipants != chatRoom.getTotalParticipant()) {
-            throw new CustomException(CustomErrorCode.INSUFFICIENT_PARTICIPANTS, "Need at least " + totalParticipants + " participants to start");
+            throw new CustomException(CustomErrorCode.INSUFFICIENT_PARTICIPANTS, "Need " + chatRoom.getTotalParticipant() + " participants to start, but only " + totalParticipants + " are present");
         }
 
         if (!chatRoom.getHost().equals(schoolEmail)) {
@@ -86,17 +93,16 @@ public class MessageService {
         }
 
         chatRoom.setStatus(ChatRoom.Status.ACTIVE);
+        chatRoomRepository.save(chatRoom);
 
-        return messageRepository.save(saveMessage);
+        return messageRepository.save(savedMessage);
     }
 
-    public Message settingMessage(Message message, Integer chatroomId, String schoolEmail) {
-
+    private Message settingMessage(Message message, Integer chatroomId, String schoolEmail) {
         User user = userRepository.findBySchoolEmail(schoolEmail)
                 .orElseThrow(() -> new CustomException(CustomErrorCode.USER_NOT_FOUND, "User with Email " + schoolEmail + " not found"));
-        String nickname = user.getNickname();
 
-        message.setNickname(nickname);
+        message.setNickname(user.getNickname());
         message.setSchoolEmail(schoolEmail);
         message.setChatroomId(chatroomId);
 
