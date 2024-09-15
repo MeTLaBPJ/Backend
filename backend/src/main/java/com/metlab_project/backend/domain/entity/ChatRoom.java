@@ -26,7 +26,7 @@ public class ChatRoom {
     private String chatroomName;
 
     @Column(name = "host", nullable = false, length = 30)
-    private String host;
+    private String host; // host's schoolEmail
 
     @Builder.Default
     @Column(name = "participant_male_count")
@@ -36,7 +36,14 @@ public class ChatRoom {
     @Column(name = "participant_female_count")
     private Integer participantFemaleCount = 0;
 
+    @Column(name = "total_participant")
+    private Integer totalParticipant;
+
     private LocalDateTime deadline;
+
+    @Builder.Default
+    @Column(name = "status")
+    private Status status = Status.WAITING;
 
     @Column(length = 100)
     private String hashtags;
@@ -47,4 +54,8 @@ public class ChatRoom {
     @OneToMany(mappedBy = "chatRoom")
     private List<Message> messages;
 
+    public enum Status{
+        WAITING,
+        ACTIVE
+    }
 }

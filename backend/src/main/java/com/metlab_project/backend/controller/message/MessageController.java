@@ -36,7 +36,7 @@ public class MessageController {
 
     @MessageMapping("/chat.start/{chatroomId}")
     @SendTo("/sub/{chatroomId}")
-    public Message sendMessage(@DestinationVariable Integer chatroomId, @Payload Message message, Principal user){
+    public Message startChatroom(@DestinationVariable Integer chatroomId, @Payload Message message, Principal user){
         return  messageService.handleStartMessage(chatroomId, message, user.getName());
     }
 }
