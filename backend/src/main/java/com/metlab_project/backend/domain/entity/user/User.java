@@ -48,12 +48,6 @@ public class User {
     @Column(length = 30)
     private String department;
 
-    @Column(length = 10)
-    private String mbti;
-
-    @Column(columnDefinition = "TEXT")
-    private String bio;
-
     @Column(name = "chatroom_id")
     private Integer chatroomId;
 
