@@ -1,6 +1,7 @@
 package com.metlab_project.backend.security.jwt;
 
-import com.metlab_project.backend.exception.TokenException;
+import com.metlab_project.backend.exception.CustomErrorCode;
+import com.metlab_project.backend.exception.CustomException;
 import com.metlab_project.backend.service.jwt.BlacklistTokenService;
 import com.metlab_project.backend.service.user.UserService;
 import com.metlab_project.backend.domain.dto.user.res.UserInfoResponse;
@@ -35,7 +36,7 @@ public class JwtTokenValidator {
 
     public boolean validateAccessToken(String token) {
         if (blacklistTokenService.isBlacklisted(token))
-            throw new TokenException(TokenException.TokenErrorCode.TOKEN_BLACKLISTED);
+            throw new CustomException(CustomErrorCode.TOKEN_BLACKLISTED);
 
         try {
             Claims claims = Jwts.parserBuilder()
@@ -46,11 +47,11 @@ public class JwtTokenValidator {
 
             return true;
         } catch (ExpiredJwtException e) {
-            throw new TokenException(TokenException.TokenErrorCode.TOKEN_EXPIRED);
+            throw new CustomException(CustomErrorCode.TOKEN_EXPIRED);
         } catch (SignatureException | MalformedJwtException | UnsupportedJwtException e) {
-            throw new TokenException(TokenException.TokenErrorCode.TOKEN_INVALID);
+            throw new CustomException(CustomErrorCode.TOKEN_INVALID);
         } catch (IllegalArgumentException e) {
-            throw new TokenException(TokenException.TokenErrorCode.TOKEN_MISSING);
+            throw new CustomException(CustomErrorCode.TOKEN_MISSING);
         }
     }
 
@@ -64,16 +65,17 @@ public class JwtTokenValidator {
 
             return true;
         } catch (ExpiredJwtException e) {
-            throw new TokenException(TokenException.TokenErrorCode.REFRESH_TOKEN_EXPIRED);
+            throw new CustomException(CustomErrorCode.REFRESH_TOKEN_EXPIRED);
         } catch (SignatureException | MalformedJwtException | UnsupportedJwtException e) {
-            throw new TokenException(TokenException.TokenErrorCode.TOKEN_INVALID);
+            throw new CustomException(CustomErrorCode.TOKEN_INVALID);
         } catch (IllegalArgumentException e) {
-            throw new TokenException(TokenException.TokenErrorCode.TOKEN_MISSING);
+            throw new CustomException(CustomErrorCode.TOKEN_MISSING);
         }
     }
 
-    public void handleTokenException(HttpServletRequest request, HttpServletResponse response, TokenException e, String accessToken, UserService userService, JwtTokenProvider jwtTokenProvider) throws IOException {
-        switch (e.getErrorCode()) {
+    public void handleTokenException(HttpServletRequest request, HttpServletResponse response, CustomException e,
+                                     String accessToken, UserService userService, JwtTokenProvider jwtTokenProvider) throws IOException {
+        switch (e.getCustomErrorCode()) {
             case TOKEN_EXPIRED:
                 handleExpiredToken(request, response, accessToken, userService, jwtTokenProvider);
                 break;
@@ -111,7 +113,7 @@ public class JwtTokenValidator {
                 Authentication auth = new UsernamePasswordAuthenticationToken(user.getSchoolEmail(), null, Collections.emptyList());
                 SecurityContextHolder.getContext().setAuthentication(auth);
             }
-        } catch (TokenException error) {
+        } catch (CustomException error) {
             SecurityContextHolder.clearContext();
 
             // Clear the refresh token cookie

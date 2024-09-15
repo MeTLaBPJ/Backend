@@ -1,6 +1,6 @@
 package com.metlab_project.backend.security.jwt;
 
-import com.metlab_project.backend.exception.TokenException;
+import com.metlab_project.backend.exception.CustomException;
 import com.metlab_project.backend.service.jwt.BlacklistTokenService;
 import com.metlab_project.backend.service.user.UserService;
 import com.metlab_project.backend.domain.entity.user.*;
@@ -43,7 +43,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter implements Fil
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
-        logger.info("Enter JwtTokenFilter with {}", request.getRequestURI());
+        logger.info("Processing request in JwtAuthenticationFilter: {}", request.getRequestURI());
         String accessToken = getAccessTokenFromHeader(request);
 
         if (isPermittedUrl(request.getRequestURI())) {
@@ -70,13 +70,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter implements Fil
 
             filterChain.doFilter(request, response);
 
-        } catch (TokenException e) {
-            logger.warn("JwtException Occurred");
+        } catch (CustomException e) {
+            logger.warn("CustomException occurred during token validation: {}", e.getMessage());
             jwtTokenValidator.handleTokenException(request, response, e, accessToken, userService, jwtTokenProvider);
         } catch (Exception e) {
+            logger.error("Unexpected error in JwtAuthenticationFilter: {}", e.getMessage());
             SecurityContextHolder.clearContext();
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            response.getWriter().write("UnExpected Error with : " + e.getMessage());
+            response.getWriter().write("Unexpected error: " + e.getMessage());
         }
     }
 
@@ -85,7 +86,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter implements Fil
         if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
             return bearerToken.substring(7);
         }
-        logger.error("Get Access Token From Header Failed!");
+        logger.debug("Access token not found in request header");
         return null;
     }
 
@@ -98,7 +99,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter implements Fil
                 }
             }
         }
-        logger.error("Get Refresh Token From Cookie Failed!");
+        logger.debug("Refresh token not found in cookies");
         return null;
     }
 

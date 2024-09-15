@@ -1,6 +1,6 @@
 package com.metlab_project.backend.security;
 
-import com.metlab_project.backend.security.jwt.JwtTokenFilter;
+import com.metlab_project.backend.security.jwt.JwtAuthenticationFilter;
 import com.metlab_project.backend.security.jwt.JwtTokenProvider;
 import com.metlab_project.backend.security.jwt.JwtTokenValidator;
 import com.metlab_project.backend.service.jwt.BlacklistTokenService;
@@ -34,7 +34,8 @@ public class SecurityConfig {
     private static final List<String> whiteListUrl = Arrays.asList(
             "/api/auth/login",
             "/api/auth/register",
-            "/api/**"
+            "/api/**",
+            "/error/**"
     );
 
     @Value("${cors.allowed-origins}")
@@ -59,7 +60,7 @@ public class SecurityConfig {
                     .requestMatchers(whiteListUrl.toArray(new String[0])).permitAll()
                     //.anyRequest().authenticated()
             )
-            .addFilterBefore(new JwtTokenFilter(userService, jwtTokenProvider,jwtTokenValidator,blacklistTokenService), UsernamePasswordAuthenticationFilter.class);
+            .addFilterBefore(new JwtAuthenticationFilter(userService, jwtTokenProvider,jwtTokenValidator,blacklistTokenService), UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 

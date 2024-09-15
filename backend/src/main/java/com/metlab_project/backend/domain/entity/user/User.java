@@ -33,7 +33,7 @@ public class User {
 
     @Builder.Default
     @Column(name = "ticket")
-    private Integer tickets = 1;
+    private Integer tickets = 3;
 
     private LocalDate birthday;
 
