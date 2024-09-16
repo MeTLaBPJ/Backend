@@ -2,7 +2,6 @@ package com.metlab_project.backend.domain.entity;
 
 import com.metlab_project.backend.domain.entity.user.User;
 import jakarta.persistence.*;
-import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -21,14 +20,9 @@ public class Message {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "type")
+    @Enumerated(EnumType.STRING)
+    @Column(name = "type", length = 20)
     private MessageType type;
-
-    @Column(name = "school_Email", nullable = false)
-    private String schoolEmail;
-
-    @Column(name = "chatroom_id", nullable = false)
-    private Integer chatroomId;
 
     @Column(name = "nickname", nullable = false)
     private String nickname;
@@ -39,18 +33,23 @@ public class Message {
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
-    @ManyToOne
-    @JoinColumn(name = "school_Email", insertable = false, updatable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "school_email", referencedColumnName = "school_email")
     private User user;
 
-    @ManyToOne
-    @JoinColumn(name = "chatroom_id", insertable = false, updatable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "chatroom_id", referencedColumnName = "id")
     private ChatRoom chatRoom;
 
-    private enum MessageType {
+    public enum MessageType {
         CHAT,
         JOIN,
         LEAVE,
         START
+    }
+
+    @PrePersist
+    protected void onCreate() {
+        createdAt = LocalDateTime.now();
     }
 }

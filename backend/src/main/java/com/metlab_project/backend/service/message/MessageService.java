@@ -101,10 +101,12 @@ public class MessageService {
     private Message settingMessage(Message message, Integer chatroomId, String schoolEmail) {
         User user = userRepository.findBySchoolEmail(schoolEmail)
                 .orElseThrow(() -> new CustomException(CustomErrorCode.USER_NOT_FOUND, "User with Email " + schoolEmail + " not found"));
+        ChatRoom chatRoom = chatRoomRepository.findById(chatroomId)
+                .orElseThrow(() -> new CustomException(CustomErrorCode.CHATROOM_NOT_FOUND, "ChatRoom with ID " + chatroomId + " not found"));
 
         message.setNickname(user.getNickname());
-        message.setSchoolEmail(schoolEmail);
-        message.setChatroomId(chatroomId);
+        message.setUser(user);
+        message.setChatRoom(chatRoom);
 
         return message;
     }

@@ -6,6 +6,7 @@ import com.metlab_project.backend.security.jwt.JwtTokenProvider;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.ZoneId;
 import java.util.Date;
 
 @Service
@@ -20,7 +21,7 @@ public class BlacklistTokenService {
         BlacklistToken blacklistToken = new BlacklistToken();
 
         blacklistToken.setToken(token);
-        blacklistToken.setExpiryDate(expiryDate);
+        blacklistToken.setExpiryDate(expiryDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime());
         blacklistTokenRepository.save(blacklistToken);
     }
 
