@@ -41,10 +41,24 @@ public class ChatRoom {
     @Column(length = 100)
     private String hashtags;
 
-    @OneToMany(mappedBy = "chatRoom")
-    private List<User> users;
+    @ManyToMany(mappedBy = "chatRooms")
+    private List<User> users = new ArrayList<>();
 
     @OneToMany(mappedBy = "chatRoom")
     private List<Message> messages;
 
+    public enum Status {
+        WAITING,
+        ACTIVE
+    }
+
+    public void addUser(User user) {
+        this.users.add(user);
+        user.getChatRooms().add(this);
+    }
+
+    public void removeUser(User user) {
+        this.users.remove(user);
+        user.getChatRooms().remove(this);
+    }
 }

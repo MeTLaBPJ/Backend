@@ -59,8 +59,25 @@ public class User {
 
     private UserRole role;
 
-    @ManyToOne
-    @JoinColumn(name = "chatroom_id", insertable = false, updatable = false)
-    private ChatRoom chatRoom;
+    @ManyToMany
+    @JoinTable(
+            name = "user_chatroom",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "chatroom_id")
+    )
+    private List<ChatRoom> chatRooms = new ArrayList<>();
 
+    public void addChatRoom(ChatRoom chatRoom) {
+        this.chatRooms.add(chatRoom);
+        chatRoom.getUsers().add(this);
+    }
+
+    public void removeChatRoom(ChatRoom chatRoom) {
+        this.chatRooms.remove(chatRoom);
+        chatRoom.getUsers().remove(this);
+    }
+
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "user_information_id")
+    private UserInformation userInformation;
 }
