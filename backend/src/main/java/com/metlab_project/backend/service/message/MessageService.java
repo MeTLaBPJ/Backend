@@ -53,13 +53,14 @@ public class MessageService {
 
     @Transactional
     public Message handleLeaveMessage(Integer chatroomId, Message message, String schoolEmail) {
-        Message savedMessage = settingMessage(message, chatroomId, schoolEmail);
-        messageRepository.save(savedMessage);
 
         User user = userRepository.findBySchoolEmail(schoolEmail)
                 .orElseThrow(() -> new CustomException(CustomErrorCode.USER_NOT_FOUND, "User with Email " + schoolEmail + " not found"));
         ChatRoom chatRoom = chatRoomRepository.findById(chatroomId)
                 .orElseThrow(() -> new CustomException(CustomErrorCode.CHATROOM_NOT_FOUND, "Chat room with ID " + chatroomId + " not found"));
+
+        Message savedMessage = settingMessage(message, chatroomId, schoolEmail);
+        messageRepository.save(savedMessage);
 
         user.removeChatRoom(chatRoom);
 

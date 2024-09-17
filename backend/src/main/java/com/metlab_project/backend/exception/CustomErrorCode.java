@@ -9,9 +9,6 @@ import org.springframework.http.HttpStatus;
 @RequiredArgsConstructor
 public enum CustomErrorCode {
 
-    // TODO 채팅룸이 다 안찼는데 시작하려고 할떄
-    // TODO 채팅룸 풀로 찼는데 접근하려고 할떄
-
     // 유저 관련 에러
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "U001", "User not found"),
     // 채팅룸 관련 에러

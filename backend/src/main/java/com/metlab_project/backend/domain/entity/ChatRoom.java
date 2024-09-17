@@ -51,9 +51,6 @@ public class ChatRoom {
     @ManyToMany(mappedBy = "chatRooms")
     private List<User> users = new ArrayList<>();
 
-    @OneToMany(mappedBy = "chatRoom", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Message> messages = new ArrayList<>();
-
     public enum Status {
         WAITING,
         ACTIVE
@@ -67,15 +64,5 @@ public class ChatRoom {
     public void removeUser(User user) {
         this.users.remove(user);
         user.getChatRooms().remove(this);
-    }
-
-    public void addMessage(Message message) {
-        messages.add(message);
-        message.setChatRoom(this);
-    }
-
-    public void removeMessage(Message message) {
-        messages.remove(message);
-        message.setChatRoom(null);
     }
 }
