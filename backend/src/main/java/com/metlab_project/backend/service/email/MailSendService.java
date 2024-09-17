@@ -1,24 +1,26 @@
 package com.metlab_project.backend.service.email;
 
-import com.metlab_project.backend.util.*;
+import com.metlab_project.backend.util.RedisUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
-
-import jakarta.mail.internet.MimeMessage; // Jakarta Mail을 사용하는 경우
+import jakarta.mail.internet.MimeMessage;
 import jakarta.mail.MessagingException;
-
 import java.util.Random;
+
 
 @Service
 public class MailSendService {
     @Autowired
     private JavaMailSender mailSender;
     @Autowired
-    private RedisUtil redisUtil;
+    private  RedisUtil redisUtil;
     private int authNumber;
 
+
+
+//추가 되었다.
     public boolean CheckAuthNum(String email,String authNum){
         if(redisUtil.getData(authNum)==null){
             return false;
@@ -30,6 +32,7 @@ public class MailSendService {
              return false;
          }
     }
+
 
     //임의의 6자리 양수를 반환합니다.
     public void makeRandomNumber() {
@@ -46,7 +49,7 @@ public class MailSendService {
     //mail을 어디서 보내는지, 어디로 보내는지 , 인증 번호를 html 형식으로 어떻게 보내는지 작성합니다.
     public String joinEmail(String email) {
         makeRandomNumber();
-        String setFrom = "lily030624@inu.ac.kr"; // email-config에 설정한 자신의 이메일 주소를 입력
+        String setFrom = "lily030624@gmail.com"; // email-config에 설정한 자신의 이메일 주소를 입력
         String toMail = email;
         String title = "회원 가입 인증 이메일 입니다."; // 이메일 제목
         String content =
@@ -74,7 +77,7 @@ public class MailSendService {
             // 이러한 경우 MessagingException이 발생
             e.printStackTrace();//e.printStackTrace()는 예외를 기본 오류 스트림에 출력하는 메서드
         }
-        
+        redisUtil.setDataExpire(Integer.toString(authNumber),toMail,60*5L);
 
     }
 

@@ -30,6 +30,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'org.springframework.boot:spring-boot-devtools'
+    implementation 'org.springframework.security:spring-security-crypto'
 
     // 데이터베이스
     implementation 'org.mariadb.jdbc:mariadb-java-client'
@@ -69,6 +70,7 @@ dependencies {
 
     // Jakarta Servlet API
     implementation 'jakarta.servlet:jakarta.servlet-api:5.0.0'
+    
 }
 
 

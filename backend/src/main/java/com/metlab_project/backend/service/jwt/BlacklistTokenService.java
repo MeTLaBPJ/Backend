@@ -17,6 +17,10 @@ public class BlacklistTokenService {
     private final JwtTokenProvider jwtTokenProvider;
 
     public void addBlacklistToken(String token){
+        if (token == null) {
+            throw new IllegalArgumentException("Token must not be null");
+        }
+
         Date expiryDate = jwtTokenProvider.getExpirationDateFromToken(token);
         BlacklistToken blacklistToken = new BlacklistToken();
 
@@ -26,6 +30,10 @@ public class BlacklistTokenService {
     }
 
     public boolean isBlacklisted(String token){
+        if (token == null) {
+            throw new IllegalArgumentException("Token must not be null");
+        }
+
         return blacklistTokenRepository.existsByToken(token);
     }
 }
