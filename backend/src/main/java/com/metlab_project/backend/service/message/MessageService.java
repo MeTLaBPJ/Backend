@@ -15,8 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 public class MessageService {
-    // TODO 채팅룸이 다 안찼는데 시작하려고 할떄
-    // TODO 채팅룸 풀로 찼는데 접근하려고 할떄
+
     private final MessageRepository messageRepository;
     private final ChatRoomRepository chatRoomRepository;
     private final UserRepository userRepository;
