@@ -15,23 +15,29 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 public class MessageService {
-
+    // TODO 채팅룸이 다 안찼는데 시작하려고 할떄
+    // TODO 채팅룸 풀로 찼는데 접근하려고 할떄
     private final MessageRepository messageRepository;
     private final ChatRoomRepository chatRoomRepository;
     private final UserRepository userRepository;
 
     @Transactional
     public Message handleJoinMessage(Integer chatroomId, Message message, String schoolEmail) {
-        Message savedMessage = settingMessage(message, chatroomId, schoolEmail);
-        messageRepository.save(savedMessage);
 
         User user = userRepository.findBySchoolEmail(schoolEmail)
                 .orElseThrow(() -> new CustomException(CustomErrorCode.USER_NOT_FOUND, "User with Email " + schoolEmail + " not found"));
         ChatRoom chatRoom = chatRoomRepository.findById(chatroomId)
                 .orElseThrow(() -> new CustomException(CustomErrorCode.CHATROOM_NOT_FOUND, "Chat room with ID " + chatroomId + " not found"));
 
+        if(chatRoom.getTotalParticipant() == chatRoom.getParticipantFemaleCount() + chatRoom.getParticipantMaleCount())
+            throw new CustomException(CustomErrorCode.CHATROOM_FULL, "Chatroom is full");
+
+        Message savedMessage = settingMessage(message, chatroomId, schoolEmail);
+        messageRepository.save(savedMessage);
+
         user.addChatRoom(chatRoom);
 
+        chatRoom.setTotalParticipant(chatRoom.getTotalParticipant()+1);
         if ("MALE".equals(user.getGender())) {
             chatRoom.setParticipantMaleCount(chatRoom.getParticipantMaleCount() + 1);
         } else if ("FEMALE".equals(user.getGender())) {
@@ -58,6 +64,7 @@ public class MessageService {
 
         user.removeChatRoom(chatRoom);
 
+        chatRoom.setTotalParticipant(chatRoom.getTotalParticipant()-1);
         if ("MALE".equals(user.getGender())) {
             chatRoom.setParticipantMaleCount(chatRoom.getParticipantMaleCount() - 1);
         } else if ("FEMALE".equals(user.getGender())) {
@@ -78,10 +85,13 @@ public class MessageService {
 
     @Transactional
     public Message handleStartMessage(Integer chatroomId, Message message, String schoolEmail) {
-        Message savedMessage = settingMessage(message, chatroomId, schoolEmail);
-
         ChatRoom chatRoom = chatRoomRepository.findById(chatroomId)
                 .orElseThrow(() -> new CustomException(CustomErrorCode.CHATROOM_NOT_FOUND, "Chat room with ID " + chatroomId + " not found"));
+
+        if(chatRoom.getTotalParticipant() != chatRoom.getParticipantFemaleCount() + chatRoom.getParticipantMaleCount())
+            throw new CustomException(CustomErrorCode.CHATROOM_NOT_FULL, "Chatroom is not full");
+
+        Message savedMessage = settingMessage(message, chatroomId, schoolEmail);
 
         int totalParticipants = chatRoom.getParticipantMaleCount() + chatRoom.getParticipantFemaleCount();
         if (totalParticipants != chatRoom.getTotalParticipant()) {

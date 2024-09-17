@@ -9,12 +9,18 @@ import org.springframework.http.HttpStatus;
 @RequiredArgsConstructor
 public enum CustomErrorCode {
 
+    // TODO 채팅룸이 다 안찼는데 시작하려고 할떄
+    // TODO 채팅룸 풀로 찼는데 접근하려고 할떄
+
     // 유저 관련 에러
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "U001", "User not found"),
     // 채팅룸 관련 에러
     CHATROOM_NOT_FOUND(HttpStatus.NOT_FOUND, "C001", "Chat room not found"),
     INSUFFICIENT_PARTICIPANTS(HttpStatus.BAD_REQUEST, "C002", "Insufficient participants to start chat room"),
     NOT_CHATROOM_HOST(HttpStatus.FORBIDDEN, "C003", "User is not the host of the chat room"),
+    CHATROOM_NOT_FULL(HttpStatus.BAD_REQUEST, "C004", "Chat room is not full yet"),
+    CHATROOM_FULL(HttpStatus.FORBIDDEN, "C005", "Chat room is already full"),
+
     // 토큰 관련 에러
     TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "401", "Token has expired"),
     TOKEN_INVALID(HttpStatus.UNAUTHORIZED, "401", "Token is invalid"),

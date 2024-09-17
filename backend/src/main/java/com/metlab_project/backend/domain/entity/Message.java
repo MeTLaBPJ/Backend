@@ -41,7 +41,7 @@ public class Message {
     @JoinColumn(name = "chatroom_id", referencedColumnName = "id")
     private ChatRoom chatRoom;
 
-    public enum MessageType {
+    public enum MessageType { // type = chat, chatroomid == 클라이언트 요청
         CHAT,
         JOIN,
         LEAVE,
