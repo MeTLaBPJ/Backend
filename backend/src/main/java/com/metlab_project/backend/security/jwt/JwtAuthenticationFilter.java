@@ -72,7 +72,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter implements Fil
 
         } catch (CustomException e) {
             logger.warn("CustomException occurred during token validation: {}", e.getMessage());
-            jwtTokenValidator.handleTokenException(request, response, e, accessToken, userService, jwtTokenProvider);
+            jwtTokenValidator.handleTokenException(request, response, e, accessToken, userService);
         } catch (Exception e) {
             logger.error("Unexpected error in JwtAuthenticationFilter: {}", e.getMessage());
             SecurityContextHolder.clearContext();

@@ -28,4 +28,5 @@ public class UserController {
     public UserInfoResponse updateUserInfo(@PathVariable String schoolEmail, @RequestBody UserInfoResponse updatedUserInfo) {
         return userService.updateUserInfo(schoolEmail, updatedUserInfo);
     }
+
 }
