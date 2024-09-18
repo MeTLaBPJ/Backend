@@ -1,5 +1,6 @@
 package com.metlab_project.backend.domain.entity.jwt;
 
+import com.metlab_project.backend.domain.entity.user.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -8,7 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "refresh_tokens") // 테이블 이름을 지정할 수 있습니다.
+@Table(name = "refresh_tokens")
 @Getter
 @Setter
 @Builder
@@ -21,11 +22,12 @@ public class RefreshEntity {
     private Long id;
 
     @Column(nullable = false, unique = true)
-    private String schoolEmail;  // 유저의 이메일(고유)
+    private String token;
 
     @Column(nullable = false)
-    private String token;  // Refresh 토큰
+    private Long expiration;
 
-    @Column(nullable = false)
-    private Long expiration;  // 만료 시간 (초 단위로 저장)
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "school_email", referencedColumnName = "school_email")
+    private User user;
 }

@@ -1,13 +1,12 @@
 package com.metlab_project.backend.domain.entity.jwt;
 
-import java.util.Date;
-
 import jakarta.persistence.*;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Data
@@ -20,6 +19,14 @@ public class BlacklistToken {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @Column(nullable = false, unique = true)
     private String token;
-    private Date expiryDate;
+
+    @Column(nullable = false)
+    private LocalDateTime expiryDate;
+
+    @PrePersist
+    protected void onCreate() {
+        expiryDate = LocalDateTime.now();
+    }
 }

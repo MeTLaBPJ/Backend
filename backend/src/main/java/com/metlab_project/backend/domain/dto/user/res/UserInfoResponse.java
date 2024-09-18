@@ -1,7 +1,12 @@
 package com.metlab_project.backend.domain.dto.user.res;
 
 import com.metlab_project.backend.domain.entity.user.UserRole;
-import lombok.*;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Data
 @Getter
@@ -23,6 +28,7 @@ public class UserInfoResponse {
     private String college;
     private String department;
 
+    private String birthday;
     private String mbti;
     private String shortIntroduce;
     private String height;

@@ -1,17 +1,22 @@
 package com.metlab_project.backend.security.jwt;
 
-import com.metlab_project.backend.exception.TokenException;
+import com.metlab_project.backend.exception.CustomErrorCode;
+import com.metlab_project.backend.exception.CustomException;
 import com.metlab_project.backend.service.jwt.BlacklistTokenService;
 import com.metlab_project.backend.service.user.UserService;
 import com.metlab_project.backend.domain.dto.user.res.UserInfoResponse;
-import io.jsonwebtoken.*;
-import io.jsonwebtoken.security.SignatureException;
+
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.SignatureException;
+import io.jsonwebtoken.UnsupportedJwtException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -35,7 +40,7 @@ public class JwtTokenValidator {
 
     public boolean validateAccessToken(String token) {
         if (blacklistTokenService.isBlacklisted(token))
-            throw new TokenException(TokenException.TokenErrorCode.TOKEN_BLACKLISTED);
+            throw new CustomException(CustomErrorCode.TOKEN_BLACKLISTED);
 
         try {
             Claims claims = Jwts.parserBuilder()
@@ -46,11 +51,11 @@ public class JwtTokenValidator {
 
             return true;
         } catch (ExpiredJwtException e) {
-            throw new TokenException(TokenException.TokenErrorCode.TOKEN_EXPIRED);
+            throw new CustomException(CustomErrorCode.TOKEN_EXPIRED);
         } catch (SignatureException | MalformedJwtException | UnsupportedJwtException e) {
-            throw new TokenException(TokenException.TokenErrorCode.TOKEN_INVALID);
+            throw new CustomException(CustomErrorCode.TOKEN_INVALID);
         } catch (IllegalArgumentException e) {
-            throw new TokenException(TokenException.TokenErrorCode.TOKEN_MISSING);
+            throw new CustomException(CustomErrorCode.TOKEN_MISSING);
         }
     }
 
@@ -64,18 +69,19 @@ public class JwtTokenValidator {
 
             return true;
         } catch (ExpiredJwtException e) {
-            throw new TokenException(TokenException.TokenErrorCode.REFRESH_TOKEN_EXPIRED);
+            throw new CustomException(CustomErrorCode.REFRESH_TOKEN_EXPIRED);
         } catch (SignatureException | MalformedJwtException | UnsupportedJwtException e) {
-            throw new TokenException(TokenException.TokenErrorCode.TOKEN_INVALID);
+            throw new CustomException(CustomErrorCode.TOKEN_INVALID);
         } catch (IllegalArgumentException e) {
-            throw new TokenException(TokenException.TokenErrorCode.TOKEN_MISSING);
+            throw new CustomException(CustomErrorCode.TOKEN_MISSING);
         }
     }
 
-    public void handleTokenException(HttpServletRequest request, HttpServletResponse response, TokenException e, String accessToken, UserService userService, JwtTokenProvider jwtTokenProvider) throws IOException {
-        switch (e.getErrorCode()) {
+    public void handleTokenException(HttpServletRequest request, HttpServletResponse response, CustomException e,
+                                     String accessToken, UserService userService) throws IOException {
+        switch (e.getCustomErrorCode()) {
             case TOKEN_EXPIRED:
-                handleExpiredToken(request, response, accessToken, userService, jwtTokenProvider);
+                handleExpiredToken(request, response, accessToken, userService);
                 break;
             case TOKEN_INVALID:
                 sendErrorResponse(response, HttpServletResponse.SC_UNAUTHORIZED, "Invalid token");
@@ -91,7 +97,7 @@ public class JwtTokenValidator {
         }
     }
 
-    private void handleExpiredToken(HttpServletRequest request, HttpServletResponse response, String accessToken, UserService userService, JwtTokenProvider jwtTokenProvider) throws IOException {
+    private void handleExpiredToken(HttpServletRequest request, HttpServletResponse response, String accessToken, UserService userService) throws IOException {
         try {
             String schoolEmail = jwtTokenProvider.getSchoolEmailFromExpiredToken(accessToken);
             String refreshToken = getRefreshTokenFromCookie(request);
@@ -100,26 +106,25 @@ public class JwtTokenValidator {
                 UserInfoResponse user = userService.getUserInfoBySchoolEmail(schoolEmail);
                 String newAccessToken = jwtTokenProvider.generateAccessToken(user.getSchoolEmail());
 
-                // Set the new access token in the Authorization header
+                // 새로운 액세스 토큰을 Authorization 헤더에 설정
                 response.setHeader("Authorization", "Bearer " + newAccessToken);
 
-                // Generate a new refresh token and set it as an HTTP-only cookie
+                // 새로운 리프레시 토큰 생성 및 HTTP 전용 쿠키로 설정
                 String newRefreshToken = jwtTokenProvider.generateRefreshToken(user.getSchoolEmail());
-                ResponseCookie refreshTokenCookie = jwtTokenProvider.generateRefreshTokenCookie(newRefreshToken);
-                response.setHeader("Set-Cookie", refreshTokenCookie.toString());
+                Cookie refreshTokenCookie = jwtTokenProvider.generateRefreshTokenCookie(newRefreshToken);
+                response.addCookie(refreshTokenCookie);
 
                 Authentication auth = new UsernamePasswordAuthenticationToken(user.getSchoolEmail(), null, Collections.emptyList());
                 SecurityContextHolder.getContext().setAuthentication(auth);
             }
-        } catch (TokenException error) {
+        } catch (CustomException error) {
             SecurityContextHolder.clearContext();
 
-            // Clear the refresh token cookie
-            ResponseCookie clearRefreshTokenCookie = ResponseCookie.from("refresh", "")
-                    .maxAge(0)
-                    .path("/")
-                    .build();
-            response.setHeader("Set-Cookie", clearRefreshTokenCookie.toString());
+            // 리프레시 토큰 쿠키 삭제
+            Cookie clearRefreshTokenCookie = new Cookie("refresh", "");
+            clearRefreshTokenCookie.setMaxAge(0);
+            clearRefreshTokenCookie.setPath("/");
+            response.addCookie(clearRefreshTokenCookie);
 
             response.sendRedirect("/login");
             response.getWriter().write("Token error: " + error.getMessage());

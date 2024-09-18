@@ -1,26 +1,25 @@
 package com.metlab_project.backend.controller.user;
 
 import com.metlab_project.backend.domain.dto.user.UserInfoResponse;
+import com.metlab_project.backend.security.jwt.JwtTokenProvider;
 import com.metlab_project.backend.service.user.UserService;
 
 import jakarta.persistence.EntityNotFoundException;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/user")
+@RequiredArgsConstructor
 public class UserController {
 
     private final UserService userService;
     private final JwtTokenProvider jwtTokenProvider;
-
-    @Autowired
-    public UserController(UserService userService) {
-        this.userService = userService;
-    }
 
     // 현재 유저의 이메일을 가져옴
     private String getUserEmail() {
@@ -46,6 +45,7 @@ public class UserController {
         return ResponseEntity.ok(updatedUser);
     }
 
+<<<<<<< HEAD
     @GetMapping("/info/{nickname}/{chatRoomId}") 
     @Operation(summary = "참가중인 채팅룸 속 다른 유저 프로필 불러오기", description = "유저가 참가중인 채팅룸 속 다른 유저의 마이페이지 정보를 확인합니다.")
     public ResponseEntity<UserInfoResponse> getAnotherUserInfo(@PathVariable String nickname, @RequestParam Long chatRoomId) {
@@ -68,4 +68,6 @@ public class UserController {
 
         return new ResponseEntity<>("User account deleted successfully.", HttpStatus.OK);
     } 
+=======
+>>>>>>> develop
 }

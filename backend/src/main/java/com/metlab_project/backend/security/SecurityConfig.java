@@ -1,6 +1,6 @@
 package com.metlab_project.backend.security;
 
-import com.metlab_project.backend.security.jwt.JwtTokenFilter;
+import com.metlab_project.backend.security.jwt.JwtAuthenticationFilter;
 import com.metlab_project.backend.security.jwt.JwtTokenProvider;
 import com.metlab_project.backend.security.jwt.JwtTokenValidator;
 import com.metlab_project.backend.service.jwt.BlacklistTokenService;
@@ -17,6 +17,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Arrays;
 import java.util.List;
@@ -33,8 +35,13 @@ public class SecurityConfig {
 
     private static final List<String> whiteListUrl = Arrays.asList(
             "/api/auth/login",
+            "/sign-up/email",
             "/api/auth/register",
-            "/api/**"
+            "/api/**",
+            "/error/**",
+            "/api/users/join",
+            "/api/users/login",
+            "/sign-up/email/check"
     );
 
     @Value("${cors.allowed-origins}")
@@ -59,7 +66,7 @@ public class SecurityConfig {
                     .requestMatchers(whiteListUrl.toArray(new String[0])).permitAll()
                     //.anyRequest().authenticated()
             )
-            .addFilterBefore(new JwtTokenFilter(userService, jwtTokenProvider,jwtTokenValidator,blacklistTokenService), UsernamePasswordAuthenticationFilter.class);
+            .addFilterBefore(new JwtAuthenticationFilter(userService, jwtTokenProvider,jwtTokenValidator,blacklistTokenService), UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 
@@ -76,5 +83,10 @@ public class SecurityConfig {
         source.registerCorsConfiguration("/**", configuration);
 
         return source;
+    }
+
+    @Bean
+    public BCryptPasswordEncoder bCryptPasswordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 }

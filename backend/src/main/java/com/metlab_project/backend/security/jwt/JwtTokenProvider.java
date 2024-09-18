@@ -6,10 +6,9 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
-
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Component;
+import jakarta.servlet.http.Cookie;
 
 import java.security.Key;
 import java.util.Date;
@@ -22,8 +21,8 @@ public class JwtTokenProvider {
     private static final long ACCESS_TOKEN_VALIDITY_TIME = 60 * 60 * 1000; // 엑세스 토큰의 유효 기간 = 1H
     private static final long REFRESH_TOKEN_VALIDITY_TIME = 7 * 24 * 60 * 60 * 1000; // 리프레쉬 토큰의 유효 기간 = 1W
 
-    private final Key accessKey; //JWT(AccessToken) - Signature
-    private final Key refreshKey; //JWT(RefreshToken) - Signature
+    private final Key accessKey; // JWT(AccessToken) - Signature
+    private final Key refreshKey; // JWT(RefreshToken) - Signature
 
     public JwtTokenProvider(@Value("${jwt.secret.access}") String accessKey, @Value("${jwt.secret.refresh}") String refreshKey) {
         this.accessKey = Keys.hmacShaKeyFor(accessKey.getBytes());
@@ -93,14 +92,14 @@ public class JwtTokenProvider {
                 .compact();
     }
 
-    public ResponseCookie generateRefreshTokenCookie(String refreshToken) {
-        return ResponseCookie.from("REFRESH_TOKEN", refreshToken)
-                .httpOnly(true)
-                //.secure(true) // HTTPS를 사용하는 경우에만 true로 설정
-                .path("/")
-                .maxAge(REFRESH_TOKEN_VALIDITY_TIME / 1000) // 쿠키 유효 기간 (초 단위)
-                //.sameSite("Strict")
-                .build();
+    // ResponseCookie를 Cookie로 변환하여 반환
+    public Cookie generateRefreshTokenCookie(String refreshToken) {
+        Cookie cookie = new Cookie("REFRESH_TOKEN", refreshToken);
+        cookie.setHttpOnly(true);
+        // cookie.setSecure(true); // HTTPS를 사용하는 경우에만 true로 설정
+        cookie.setPath("/");
+        cookie.setMaxAge((int) (REFRESH_TOKEN_VALIDITY_TIME / 1000)); // 쿠키 유효 기간 (초 단위)
+        return cookie;
     }
 
     private Map<String, Object> createJwtHeader() {
@@ -108,5 +107,10 @@ public class JwtTokenProvider {
         header.put("typ", "JWT");
         header.put("alg", "HS256");
         return header;
+    }
+
+    // 새로운 메서드 추가: REFRESH_TOKEN_VALIDITY_TIME 값을 반환
+    public long getRefreshTokenValidityTime() {
+        return REFRESH_TOKEN_VALIDITY_TIME;
     }
 }

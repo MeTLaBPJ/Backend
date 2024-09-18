@@ -1,18 +1,21 @@
 package com.metlab_project.backend.service.user;
 
-import com.metlab_project.backend.domain.dto.user.UserInfoResponse;
-import com.metlab_project.backend.domain.entity.User;
-import com.metlab_project.backend.domain.entity.UserInformation;
-import com.metlab_project.backend.repository.user.UserRepository;
-
-import jakarta.persistence.EntityNotFoundException;
-import lombok.RequiredArgsConstructor;
-
-import org.springframework.security.access.AccessDeniedException;
-
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.metlab_project.backend.domain.dto.user.res.UserInfoResponse;
+import com.metlab_project.backend.domain.entity.ChatRoom;
+import com.metlab_project.backend.domain.entity.user.User;
+import com.metlab_project.backend.domain.entity.user.UserInformation;
+import com.metlab_project.backend.exception.CustomErrorCode;
+import com.metlab_project.backend.exception.CustomException;
+import com.metlab_project.backend.repository.chatroom.ChatRoomRepository;
+import com.metlab_project.backend.repository.user.UserRepository;
+
+import lombok.RequiredArgsConstructor;
 
 @Service
 @Transactional
@@ -44,7 +47,7 @@ public class UserService {
         
         UserInformation userInformation = user.getUserInformation();
         if (userInformation == null) {
-                throw new CustomException(CustomErrorCode.USER_INFORMATION_NOT_FOUND, "User information not found for email " + schoolEmail);
+                throw new CustomException(CustomErrorCode.USER_NOT_FOUND, "User information not found for email " + schoolEmail);
         }
 
         return UserInfoResponse.builder()
@@ -72,7 +75,7 @@ public class UserService {
         
         UserInformation userInformation = user.getUserInformation();
         if (userInformation == null) {
-                throw new CustomException(CustomErrorCode.USER_INFORMATION_NOT_FOUND, "User information with Email " + schoolEmail + " not found");
+                throw new CustomException(CustomErrorCode.USER_NOT_FOUND, "User information with Email " + schoolEmail + " not found");
         }
 
         if (updatedUserInfo.getNickname() == null || updatedUserInfo.getNickname().isEmpty()) {
@@ -107,7 +110,7 @@ public class UserService {
         
         UserInformation userInformation = user.getUserInformation();
         if (userInformation == null) {
-                throw new CustomException(CustomErrorCode.USER_INFORMATION_NOT_FOUND, "User information with Nickname " + nickname + " not found");
+                throw new CustomException(CustomErrorCode.USER_NOT_FOUND, "User information with Nickname " + nickname + " not found");
         }
 
         return UserInfoResponse.builder()
