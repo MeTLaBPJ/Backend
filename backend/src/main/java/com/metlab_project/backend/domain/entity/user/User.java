@@ -74,6 +74,9 @@ public class User {
     @Column(columnDefinition = "TEXT")
     private String bio;
 
+    @Column(length = 255)
+    private String profileImage;
+
     private String blacklist;
 
     private String refreshtoken;

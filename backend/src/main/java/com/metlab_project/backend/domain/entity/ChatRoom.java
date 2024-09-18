@@ -1,19 +1,32 @@
 package com.metlab_project.backend.domain.entity;
 
-import com.metlab_project.backend.domain.entity.user.User;
-import jakarta.persistence.*;
-import lombok.*;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.metlab_project.backend.domain.entity.user.User;
+
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 @Entity
-@Getter
-@Setter
 @Builder
-@NoArgsConstructor
+@Data
 @AllArgsConstructor
+@NoArgsConstructor
 @Table(name = "ChatRoom")
 public class ChatRoom {
     @Id
@@ -22,6 +35,15 @@ public class ChatRoom {
 
     @Column(name = "chatroom_name", nullable = false, length = 30)
     private String chatroomName;
+
+    @Column(name = "title", length = 100)
+    private String title;
+
+    @Column(name = "sub_title", length = 100)
+    private String subTitle;
+
+    @Column(name = "profile_image", length = 255)
+    private String profileImage;
 
     @Column(name = "host", nullable = false, length = 30)
     private String host; // host's schoolEmail
@@ -37,6 +59,12 @@ public class ChatRoom {
     @Column(name = "total_participant")
     private Integer totalParticipant;
 
+    @Column(name = "max_members")
+    private Integer maxMembers;
+
+    @Column(name = "enter_check")
+    private Boolean enterCheck;
+
     private LocalDateTime deadline;
 
     @Enumerated(EnumType.STRING)
@@ -50,6 +78,9 @@ public class ChatRoom {
     @Builder.Default
     @ManyToMany(mappedBy = "chatRooms")
     private List<User> users = new ArrayList<>();
+
+    @OneToMany(mappedBy = "chatRoom", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Message> messages = new ArrayList<>();
 
     public enum Status {
         WAITING,
