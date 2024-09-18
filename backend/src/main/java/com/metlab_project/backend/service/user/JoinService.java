@@ -49,11 +49,12 @@ public class JoinService {
     }
 
     @Transactional(readOnly = true)
-    public String confirmMailCode(String code) {
+    public String confirmMailCode(String email, String code) {
         if (emailAuthRepository.existsByKey(code)) {
             return "인증번호가 확인되었습니다.";
         } else {
             throw new EmailAuthNotEqualsException(); // 적절한 예외 클래스 정의 필요
         }
     }
+
 }

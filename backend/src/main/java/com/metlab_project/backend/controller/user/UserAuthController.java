@@ -7,15 +7,12 @@ import com.metlab_project.backend.service.user.ReissueService;
 import com.metlab_project.backend.service.email.EmailService;
 
 import io.swagger.annotations.ApiOperation;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
-import org.springframework.http.HttpStatus;
+import java.util.Map;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -46,12 +43,14 @@ public class UserAuthController {
     }
     
 
-    @ApiOperation(value = "유저 회원가입시 이메일 인증 코드확인", notes = "유저 회원가입시 이메일 인증 코드확인")
     @PostMapping("/sign-up/email/check")
-    @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<?> mailConfirmCheck(@RequestParam String code) {
-        return ResponseEntity.ok(joinService.confirmMailCode(code));
-    }
+public ResponseEntity<?> mailConfirmCheck(@RequestBody Map<String, String> request) throws Exception {
+    String email = request.get("email");
+    String code = request.get("key"); // "key"를 code로 사용
+
+    // 인증 코드 확인 로직
+    return ResponseEntity.ok(joinService.confirmMailCode(email, code));
+}
 
     @PostMapping("/api/users/join")
     public ResponseEntity<?> joinProcess(@Valid @RequestBody UserJoinRequestDto userJoinRequestDto) {

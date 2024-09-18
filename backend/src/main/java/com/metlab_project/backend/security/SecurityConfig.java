@@ -40,7 +40,8 @@ public class SecurityConfig {
             "/api/**",
             "/error/**",
             "/api/users/join",
-            "/api/users/login"
+            "/api/users/login",
+            "/sign-up/email/check"
     );
 
     @Value("${cors.allowed-origins}")
