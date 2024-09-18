@@ -129,7 +129,7 @@ public class UserService {
     }
 
     // 동일한 채팅방에 접속 중인지 확인
-    public void checkUserInChatRoom(String requestingUserEmail, String targetUserNickname, Long chatRoomId) {
+    public void checkUserInChatRoom(String requestingUserEmail, String targetUserNickname, Integer chatRoomId) {
         User requestingUser = userRepository.findBySchoolEmail(requestingUserEmail)
                 .orElseThrow(() -> new CustomException(CustomErrorCode.USER_NOT_FOUND, "User with Email " + requestingUserEmail + " not found"));
         
@@ -140,9 +140,10 @@ public class UserService {
                 .orElseThrow(() -> new CustomException(CustomErrorCode.CHATROOM_NOT_FOUND, "Chat room with ID " + chatRoomId + " not found"));
 
         boolean isRequestingUserInRoom = requestingUser.getChatRooms().stream()
-                .anyMatch(chatRoom -> chatRoom.getId().equals(chatRoomId));
+        .anyMatch(room -> room.getId().equals(chatRoomId));
+        
         boolean isTargetUserInRoom = targetUser.getChatRooms().stream()
-                .anyMatch(chatRoom -> chatRoom.getId().equals(chatRoomId));
+        .anyMatch(room -> room.getId().equals(chatRoomId));
 
         // 두 유저가 모두 해당 채팅방에 속해 있지 않으면 예외 발생
         if (!isRequestingUserInRoom || !isTargetUserInRoom) {

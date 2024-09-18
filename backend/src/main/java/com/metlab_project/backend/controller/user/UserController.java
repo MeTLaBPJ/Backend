@@ -1,17 +1,24 @@
 package com.metlab_project.backend.controller.user;
 
-import com.metlab_project.backend.domain.dto.user.UserInfoResponse;
-import com.metlab_project.backend.security.jwt.JwtTokenProvider;
-import com.metlab_project.backend.service.user.UserService;
-
-import jakarta.persistence.EntityNotFoundException;
-
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.metlab_project.backend.domain.dto.user.res.UserInfoResponse;
+import com.metlab_project.backend.security.jwt.JwtTokenProvider;
+import com.metlab_project.backend.service.user.UserService;
+
+import io.swagger.v3.oas.annotations.Operation;
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/user")
@@ -45,10 +52,9 @@ public class UserController {
         return ResponseEntity.ok(updatedUser);
     }
 
-<<<<<<< HEAD
     @GetMapping("/info/{nickname}/{chatRoomId}") 
     @Operation(summary = "참가중인 채팅룸 속 다른 유저 프로필 불러오기", description = "유저가 참가중인 채팅룸 속 다른 유저의 마이페이지 정보를 확인합니다.")
-    public ResponseEntity<UserInfoResponse> getAnotherUserInfo(@PathVariable String nickname, @RequestParam Long chatRoomId) {
+    public ResponseEntity<UserInfoResponse> getAnotherUserInfo(@PathVariable String nickname, @RequestParam Integer chatRoomId) {
         String schoolEmail = getUserEmail();
 
         // 해당 채팅방에 속해 있는지 확인
@@ -68,6 +74,4 @@ public class UserController {
 
         return new ResponseEntity<>("User account deleted successfully.", HttpStatus.OK);
     } 
-=======
->>>>>>> develop
 }
