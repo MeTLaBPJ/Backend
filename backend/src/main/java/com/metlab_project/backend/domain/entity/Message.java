@@ -47,7 +47,7 @@ public class Message {
     @JoinColumn(name = "chatroom_id", insertable = false, updatable = false)
     private ChatRoom chatRoom;
 
-    private enum MessageType {
+    public enum MessageType {
         CHAT,
         JOIN,
         LEAVE,

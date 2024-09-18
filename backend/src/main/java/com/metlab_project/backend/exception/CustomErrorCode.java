@@ -23,7 +23,9 @@ public enum CustomErrorCode {
     TOKEN_CLAIMS_EMPTY(HttpStatus.UNAUTHORIZED, "401", "Token claims are empty"),
     REFRESH_TOKEN_NOT_FOUND(HttpStatus.NOT_FOUND, "404", "Refresh token not found"),
     REFRESH_TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "401", "Refresh token has expired"),
-    TOKEN_BLACKLISTED(HttpStatus.UNAUTHORIZED, "401", "Token has been blacklisted");
+    TOKEN_BLACKLISTED(HttpStatus.UNAUTHORIZED, "401", "Token has been blacklisted"),
+    //그 외
+    UNKNOWN(HttpStatus.INTERNAL_SERVER_ERROR, "500", "Internal Server Error occurred");
 
     @NonNull
     private final HttpStatus httpStatus;

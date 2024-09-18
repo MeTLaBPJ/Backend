@@ -25,6 +25,15 @@ public class ChatRoom {
     @Column(name = "chatroom_name", nullable = false, length = 30)
     private String chatroomName;
 
+    @Column(name = "title", length = 100)
+    private String title;
+
+    @Column(name = "sub_title", length = 100)
+    private String subTitle;
+
+    @Column(name = "profile_image", length = 255)
+    private String profileImage;
+
     @Column(name = "host", nullable = false, length = 30)
     private String host; // host's schoolEmail
 
@@ -39,20 +48,28 @@ public class ChatRoom {
     @Column(name = "total_participant")
     private Integer totalParticipant;
 
+    @Column(name = "max_members")
+    private Integer maxMembers;
+
+    @Column(name = "enter_check")
+    private Boolean enterCheck;
+
     private LocalDateTime deadline;
 
+    @Enumerated(EnumType.STRING)
     @Builder.Default
-    @Column(name = "status")
+    @Column(name = "status", length = 20)
     private Status status = Status.WAITING;
 
     @Column(length = 100)
     private String hashtags;
 
+    @Builder.Default
     @ManyToMany(mappedBy = "chatRooms")
     private List<User> users = new ArrayList<>();
 
-    @OneToMany(mappedBy = "chatRoom")
-    private List<Message> messages;
+    @OneToMany(mappedBy = "chatRoom", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Message> messages = new ArrayList<>();
 
     public enum Status {
         WAITING,

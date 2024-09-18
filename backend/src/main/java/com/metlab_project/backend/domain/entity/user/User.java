@@ -71,6 +71,12 @@ public class User {
     )
     private List<ChatRoom> chatRooms = new ArrayList<>();
 
+    @Column(length = 30)
+    private String major;
+
+    @Column(length = 255)
+    private String profileImage;
+
     public void addChatRoom(ChatRoom chatRoom) {
         this.chatRooms.add(chatRoom);
         chatRoom.getUsers().add(this);
