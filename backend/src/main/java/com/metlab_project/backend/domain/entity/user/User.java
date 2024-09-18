@@ -1,27 +1,27 @@
 package com.metlab_project.backend.domain.entity.user;
 
 import com.metlab_project.backend.domain.entity.ChatRoom;
+import com.metlab_project.backend.domain.entity.Message;
 import jakarta.persistence.*;
-import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
+@Getter
+@Setter
 @Builder
-@Data
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "User")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "school_email", nullable = false, length = 30)
+    @Column(name = "school_email", nullable = false, length = 30, unique = true)
     private String schoolEmail;
 
     @Column(nullable = false, length = 20)
@@ -32,7 +32,7 @@ public class User {
 
     @Builder.Default
     @Column(name = "ticket")
-    private Integer tickets = 1;
+    private Integer tickets = 3;
 
     private LocalDate birthday;
 
@@ -54,19 +54,35 @@ public class User {
     @Column(columnDefinition = "TEXT")
     private String bio;
 
-    @Column(name = "chatroom_id")
-    private Integer chatroomId;
-
     private String blacklist;
 
     private String refreshtoken;
 
     private Boolean isblocked;
 
+    @Enumerated(EnumType.STRING)
+    @Column(length = 20)
     private UserRole role;
 
-    @ManyToOne
-    @JoinColumn(name = "chatroom_id", insertable = false, updatable = false)
-    private ChatRoom chatRoom;
+    @ManyToMany
+    @Builder.Default
+    @JoinTable(
+            name = "user_chatroom",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "chatroom_id")
+    )
+    private List<ChatRoom> chatRooms = new ArrayList<>();
 
+    @OneToMany(mappedBy = "user")
+    private List<Message> messages;
+
+    public void addChatRoom(ChatRoom chatRoom) {
+        this.chatRooms.add(chatRoom);
+        chatRoom.getUsers().add(this);
+    }
+
+    public void removeChatRoom(ChatRoom chatRoom) {
+        this.chatRooms.remove(chatRoom);
+        chatRoom.getUsers().remove(this);
+    }
 }

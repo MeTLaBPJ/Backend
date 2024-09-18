@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/chatroom")
-public class ChatroomController {
+public class ChatRoomController {
     @GetMapping("/list")
     @Operation(summary = "STATUS가 WAITING인 채팅룸 불러오기", description = "STATUS가 WAITING인 채팅룸을 불러옵니다.")
     public ResponseEntity<?> getAllChatroom(){

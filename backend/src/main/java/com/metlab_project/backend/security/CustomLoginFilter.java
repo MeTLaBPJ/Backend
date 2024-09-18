@@ -1,7 +1,9 @@
 package com.metlab_project.backend.security;
 
 import com.metlab_project.backend.domain.dto.user.res.UserInfoResponse;
+import com.metlab_project.backend.domain.entity.user.User;
 import com.metlab_project.backend.repository.jwt.RefreshTokenRepository;
+import com.metlab_project.backend.repository.user.UserRepository;
 import com.metlab_project.backend.security.jwt.JwtTokenProvider;
 import com.metlab_project.backend.service.user.UserService;
 import com.metlab_project.backend.domain.entity.jwt.RefreshEntity;
@@ -17,6 +19,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import java.util.Collection;
@@ -35,15 +38,18 @@ public class CustomLoginFilter extends UsernamePasswordAuthenticationFilter {
     private final AuthenticationManager authenticationManager;
     private final JwtTokenProvider jwtTokenProvider;
     private final UserService userService;
+    private final UserRepository userRepository;
 
     public CustomLoginFilter(AuthenticationManager authenticationManager,
                              RefreshTokenRepository refreshTokenRepository,
                              JwtTokenProvider jwtTokenProvider,
-                             UserService userService) {
+                             UserService userService,
+                             UserRepository userRepository) {
         this.refreshTokenRepository = refreshTokenRepository;
         this.authenticationManager = authenticationManager;
         this.jwtTokenProvider = jwtTokenProvider;
         this.userService = userService;
+        this.userRepository = userRepository;
         setFilterProcessesUrl("/api/users/login");
     }
 
@@ -94,11 +100,13 @@ public class CustomLoginFilter extends UsernamePasswordAuthenticationFilter {
     }
 
     private void addRefreshEntity(String schoolEmail, String refresh, Long refreshExpireTime) {
+        refreshTokenRepository.findByUser_SchoolEmail(schoolEmail).ifPresent(refreshTokenRepository::delete);
 
-        refreshTokenRepository.findBySchoolEmail(schoolEmail).ifPresent(refreshTokenRepository::delete);
+        User user = userRepository.findBySchoolEmail(schoolEmail)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + schoolEmail));
 
         RefreshEntity refreshEntity = RefreshEntity.builder()
-                .schoolEmail(schoolEmail)
+                .user(user)
                 .token(refresh)
                 .expiration(refreshExpireTime)
                 .build();
