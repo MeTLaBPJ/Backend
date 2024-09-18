@@ -36,7 +36,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter implements Fil
     private static final AntPathMatcher pathMatcher = new AntPathMatcher();
     private static final List<String> whiteListUrl = Arrays.asList(
             "/api/auth/login",
-            "/api/auth/register"
+            "/api/auth/register",
+            "/sign-up/email",
+            "/api/users/join",
+            "/api/users/login",
+            "/sign-up/email/check"
     );
 
     @Override
@@ -72,7 +76,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter implements Fil
 
         } catch (CustomException e) {
             logger.warn("CustomException occurred during token validation: {}", e.getMessage());
-            jwtTokenValidator.handleTokenException(request, response, e, accessToken, userService, jwtTokenProvider);
+            jwtTokenValidator.handleTokenException(request, response, e, accessToken, userService);
         } catch (Exception e) {
             logger.error("Unexpected error in JwtAuthenticationFilter: {}", e.getMessage());
             SecurityContextHolder.clearContext();
