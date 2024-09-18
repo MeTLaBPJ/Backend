@@ -35,10 +35,12 @@ public class SecurityConfig {
 
     private static final List<String> whiteListUrl = Arrays.asList(
             "/api/auth/login",
-            "/mailSend",
+            "/sign-up/email",
             "/api/auth/register",
             "/api/**",
-            "/error/**"
+            "/error/**",
+            "/api/users/join",
+            "/api/users/login"
     );
 
     @Value("${cors.allowed-origins}")

@@ -1,20 +1,26 @@
 package com.metlab_project.backend.service.user;
 
 import com.metlab_project.backend.domain.dto.user.req.UserJoinRequestDto;
-import com.metlab_project.backend.domain.entity.user.*;
+import com.metlab_project.backend.domain.entity.user.User;
 import com.metlab_project.backend.repository.user.UserRepository;
+import com.metlab_project.backend.repository.email.EmailAuthRepository; // 추가된 임포트
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import com.metlab_project.backend.exception.*;
+
 
 @Slf4j
 @Service
 public class JoinService {
     private final UserRepository userRepository;
+    private final EmailAuthRepository emailAuthRepository; // EmailAuthRepository 추가
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
-    public JoinService(UserRepository userRepository, BCryptPasswordEncoder bCryptPasswordEncoder) {
+    public JoinService(UserRepository userRepository, EmailAuthRepository emailAuthRepository, BCryptPasswordEncoder bCryptPasswordEncoder) {
         this.userRepository = userRepository;
+        this.emailAuthRepository = emailAuthRepository; // 의존성 주입
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
     }
 
@@ -24,7 +30,6 @@ public class JoinService {
         String schoolEmail = userJoinRequestDto.getSchoolEmail();
         String nickname = userJoinRequestDto.getNickname();
         String password = userJoinRequestDto.getPassword();
-       
 
         if (userRepository.existsBySchoolEmail(schoolEmail)) {
             return;
@@ -41,5 +46,14 @@ public class JoinService {
                 .build();
 
         userRepository.save(data);
+    }
+
+    @Transactional(readOnly = true)
+    public String confirmMailCode(String code) {
+        if (emailAuthRepository.existsByKey(code)) {
+            return "인증번호가 확인되었습니다.";
+        } else {
+            throw new EmailAuthNotEqualsException(); // 적절한 예외 클래스 정의 필요
+        }
     }
 }

@@ -37,7 +37,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter implements Fil
     private static final List<String> whiteListUrl = Arrays.asList(
             "/api/auth/login",
             "/api/auth/register",
-            "/mailSend"
+            "/sign-up/email",
+            "/api/users/join",
+            "/api/users/login"
     );
 
     @Override

@@ -29,22 +29,22 @@ public class UserJoinRequestDto {
     @NotEmpty(message = "gender is empty")
     private String gender;
 
-    @Schema(description = "유저의 학번", example = "male")
+    @Schema(description = "유저의 학번", example = "202201535")
     @NotNull(message = "studentId is null")
     @NotEmpty(message = "studentId is empty")
     private String studentId;
 
-    @Schema(description = "유저의 단과대", example = "male")
+    @Schema(description = "유저의 단과대", example = "정보기술대학")
     @NotNull(message = "college is null")
     @NotEmpty(message = "college is empty")
     private String college;
 
-    @Schema(description = "유저의 학과", example = "male")
+    @Schema(description = "유저의 학과", example = "컴퓨터공학부")
     @NotNull(message = "department is null")
     @NotEmpty(message = "department is empty")
     private String department;
 
-    @Schema(description = "유저의 생일", example = "male")
+    @Schema(description = "유저의 생일", example = "2003-06-24")
     @NotNull(message = "birthday is null")
     @NotEmpty(message = "birthday is empty")
     private String birthday;
