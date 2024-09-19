@@ -1,6 +1,5 @@
 package com.metlab_project.backend.service.user;
 
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -39,17 +38,26 @@ public class UserService {
     }
 
     // 유저 정보 가져옴
-    public UserInfoResponse getUserInfoBySchoolEmail(String schoolEmail){
+    public UserInfoResponse getUserInfoBySchoolEmail(String schoolEmail) {
         validateUserAccess(schoolEmail);
 
         User user = userRepository.findBySchoolEmail(schoolEmail)
                 .orElseThrow(() -> new CustomException(CustomErrorCode.USER_NOT_FOUND, "User with Email " + schoolEmail + " not found"));
-        
+
         UserInformation userInformation = user.getUserInformation();
         if (userInformation == null) {
-                throw new CustomException(CustomErrorCode.USER_NOT_FOUND, "User information not found for email " + schoolEmail);
+            throw new CustomException(CustomErrorCode.USER_NOT_FOUND, "User information not found for email " + schoolEmail);
         }
 
+        return buildUserInfoResponse(user, userInformation);
+    }
+
+    public UserInfoResponse getUserInfoBySchoolEmail() {
+        String schoolEmail = getUserEmail();
+        return getUserInfoBySchoolEmail(schoolEmail);
+    }
+
+    private UserInfoResponse buildUserInfoResponse(User user, UserInformation userInformation) {
         return UserInfoResponse.builder()
                 .schoolEmail(user.getSchoolEmail())
                 .nickname(user.getNickname())
@@ -67,19 +75,16 @@ public class UserService {
     }
 
     // 유저 정보 수정
-    public UserInfoResponse updateUserInfoBySchoolEmail(String schoolEmail, UserInfoResponse updatedUserInfo) {
+    public UserInfoResponse updateUserInfoBySchoolEmail(UserInfoResponse updatedUserInfo) {
+        String schoolEmail = getUserEmail();
         validateUserAccess(schoolEmail);
 
         User user = userRepository.findBySchoolEmail(schoolEmail)
                 .orElseThrow(() -> new CustomException(CustomErrorCode.USER_NOT_FOUND, "User with Email " + schoolEmail + " not found"));
-        
+
         UserInformation userInformation = user.getUserInformation();
         if (userInformation == null) {
-                throw new CustomException(CustomErrorCode.USER_NOT_FOUND, "User information with Email " + schoolEmail + " not found");
-        }
-
-        if (updatedUserInfo.getNickname() == null || updatedUserInfo.getNickname().isEmpty()) {
-                throw new IllegalArgumentException("Nickname cannot be empty");
+            throw new CustomException(CustomErrorCode.USER_NOT_FOUND, "User information with Email " + schoolEmail + " not found");
         }
 
         user.setNickname(updatedUserInfo.getNickname());
@@ -104,13 +109,18 @@ public class UserService {
     }
 
     // 다른 유저 정보 가져옴
-    public UserInfoResponse getAnotherUserInfoByNickname(String nickname){
+    public UserInfoResponse getAnotherUserInfoByNickname(String nickname, Integer chatRoomId){
+        String schoolEmail = getUserEmail();
+        validateUserAccess(schoolEmail);
+
+        checkUserInChatRoom(schoolEmail, nickname, chatRoomId);
+
         User user = userRepository.findByNickname(nickname)
                 .orElseThrow(() -> new CustomException(CustomErrorCode.USER_NOT_FOUND, "User with Nickname " + nickname + " not found"));
-        
+
         UserInformation userInformation = user.getUserInformation();
         if (userInformation == null) {
-                throw new CustomException(CustomErrorCode.USER_NOT_FOUND, "User information with Nickname " + nickname + " not found");
+            throw new CustomException(CustomErrorCode.USER_NOT_FOUND, "User information with Nickname " + nickname + " not found");
         }
 
         return UserInfoResponse.builder()
@@ -132,7 +142,7 @@ public class UserService {
     public void checkUserInChatRoom(String requestingUserEmail, String targetUserNickname, Integer chatRoomId) {
         User requestingUser = userRepository.findBySchoolEmail(requestingUserEmail)
                 .orElseThrow(() -> new CustomException(CustomErrorCode.USER_NOT_FOUND, "User with Email " + requestingUserEmail + " not found"));
-        
+
         User targetUser = userRepository.findByNickname(targetUserNickname)
                 .orElseThrow(() -> new CustomException(CustomErrorCode.USER_NOT_FOUND, "User with nickname " + targetUserNickname + " not found"));
 
@@ -140,32 +150,24 @@ public class UserService {
                 .orElseThrow(() -> new CustomException(CustomErrorCode.CHATROOM_NOT_FOUND, "Chat room with ID " + chatRoomId + " not found"));
 
         boolean isRequestingUserInRoom = requestingUser.getChatRooms().stream()
-        .anyMatch(room -> room.getId().equals(chatRoomId));
-        
+                .anyMatch(room -> room.getId().equals(chatRoomId));
         boolean isTargetUserInRoom = targetUser.getChatRooms().stream()
-        .anyMatch(room -> room.getId().equals(chatRoomId));
+                .anyMatch(room -> room.getId().equals(chatRoomId));
 
         // 두 유저가 모두 해당 채팅방에 속해 있지 않으면 예외 발생
         if (!isRequestingUserInRoom || !isTargetUserInRoom) {
-                throw new CustomException(CustomErrorCode.FORBIDDEN_ACCESS_TO_OTHER_USER_INFO, "Only users' information in the same chat room is accessible");
+            throw new CustomException(CustomErrorCode.FORBIDDEN_ACCESS_TO_OTHER_USER_INFO, "Only users' information in the same chat room is accessible");
         }
     }
 
     // 유저 정보 삭제
-    public void deleteUserInfoBySchoolEmail(String schoolEmail){
+    public void deleteUserInfoBySchoolEmail(){
+        String schoolEmail = getUserEmail();
         validateUserAccess(schoolEmail);
 
         User user = userRepository.findBySchoolEmail(schoolEmail)
                 .orElseThrow(() -> new CustomException(CustomErrorCode.USER_NOT_FOUND, "User with Email " + schoolEmail + " not found"));
 
-
         userRepository.delete(user);
-    }
-
-    public String getRefreshToken(String schoolEmail){
-        User user = userRepository.findBySchoolEmail(schoolEmail)
-                .orElseThrow(() -> new BadCredentialsException("Invalid Email"));
-
-        return user.getRefreshToken();
     }
 }

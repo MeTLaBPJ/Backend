@@ -1,11 +1,12 @@
 package com.metlab_project.backend.domain.entity.user;
 
-import lombok.RequiredArgsConstructor;
+import java.util.ArrayList;
+import java.util.Collection;
+
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.ArrayList;
-import java.util.Collection;
+import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public class CustomUserDetails implements UserDetails {

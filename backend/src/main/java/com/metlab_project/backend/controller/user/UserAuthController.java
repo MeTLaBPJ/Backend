@@ -1,10 +1,18 @@
 package com.metlab_project.backend.controller.user;
 
+import java.util.Map;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.metlab_project.backend.domain.dto.user.req.LoginRequestDto;
 import com.metlab_project.backend.domain.dto.user.req.UserJoinRequestDto;
+import com.metlab_project.backend.service.email.EmailService;
 import com.metlab_project.backend.service.user.JoinService;
 import com.metlab_project.backend.service.user.ReissueService;
-import com.metlab_project.backend.service.email.EmailService;
 
 import io.swagger.annotations.ApiOperation;
 import jakarta.servlet.http.HttpServletRequest;
@@ -12,9 +20,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import java.util.Map;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
 
 
 @RequiredArgsConstructor
@@ -44,13 +49,13 @@ public class UserAuthController {
     
 
     @PostMapping("/sign-up/email/check")
-public ResponseEntity<?> mailConfirmCheck(@RequestBody Map<String, String> request) throws Exception {
-    String email = request.get("email");
-    String code = request.get("key"); // "key"를 code로 사용
+    public ResponseEntity<?> mailConfirmCheck(@RequestBody Map<String, String> request) throws Exception {
+        String email = request.get("email");
+        String code = request.get("key"); // "key"를 code로 사용
 
-    // 인증 코드 확인 로직
-    return ResponseEntity.ok(joinService.confirmMailCode(email, code));
-}
+        // 인증 코드 확인 로직
+        return ResponseEntity.ok(joinService.confirmMailCode(email, code));
+    }
 
     @PostMapping("/api/users/join")
     public ResponseEntity<?> joinProcess(@Valid @RequestBody UserJoinRequestDto userJoinRequestDto) {
