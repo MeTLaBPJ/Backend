@@ -24,7 +24,7 @@ public class UserInformation {
 
     @Column(length = 30)
     private String shortIntroduce;
-    
+
     @Column(length = 10)
     private String mbti;
 

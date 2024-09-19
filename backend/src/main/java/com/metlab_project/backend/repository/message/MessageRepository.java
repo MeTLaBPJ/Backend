@@ -9,5 +9,5 @@ import com.metlab_project.backend.domain.entity.Message;
 
 @Repository
 public interface MessageRepository extends JpaRepository<Message, Integer> {
-    List<Message> findByChatroomIdAndTypeOrderByCreatedAtAsc(Integer chatroomId, Message.MessageType type);
+    List<Message> findByChatRoom_IdAndTypeOrderByCreatedAtAsc(Integer chatRoomId, Message.MessageType type);
 }

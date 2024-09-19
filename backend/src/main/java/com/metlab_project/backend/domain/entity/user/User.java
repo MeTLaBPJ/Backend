@@ -68,6 +68,7 @@ public class User {
 
     @Column(name = "chatroom_id")
     private Integer chatroomId;
+
     @Column(length = 10)
     private String mbti;
 
@@ -99,6 +100,10 @@ public class User {
     @OneToMany(mappedBy = "user")
     private List<Message> messages;
 
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "user_information_id")
+    private UserInformation userInformation;
+
     public void addChatRoom(ChatRoom chatRoom) {
         this.chatRooms.add(chatRoom);
         chatRoom.getUsers().add(this);
@@ -108,8 +113,4 @@ public class User {
         this.chatRooms.remove(chatRoom);
         chatRoom.getUsers().remove(this);
     }
-
-    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "user_information_id")
-    private UserInformation userInformation;
 }

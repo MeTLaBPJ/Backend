@@ -9,6 +9,4 @@ import com.metlab_project.backend.domain.entity.ChatRoom;
 
 @Repository
 public interface ChatRoomRepository extends JpaRepository<ChatRoom, Integer> {
-    List<ChatRoom> findByStatus(ChatRoom.Status status);
-    List<ChatRoom> findByIdIn(List<Integer> ids);
 }

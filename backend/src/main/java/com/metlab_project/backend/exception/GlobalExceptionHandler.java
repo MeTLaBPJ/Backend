@@ -16,4 +16,6 @@ public class GlobalExceptionHandler {
                 .status(ex.getCustomErrorCode().getHttpStatus())
                 .body(new CustomErrorResponse(ex.getCustomErrorCode()));
     }
+
+
 }

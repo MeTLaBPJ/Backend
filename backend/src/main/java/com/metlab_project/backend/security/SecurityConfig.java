@@ -1,27 +1,28 @@
 package com.metlab_project.backend.security;
 
-import com.metlab_project.backend.security.jwt.JwtAuthenticationFilter;
-import com.metlab_project.backend.security.jwt.JwtTokenProvider;
-import com.metlab_project.backend.security.jwt.JwtTokenValidator;
-import com.metlab_project.backend.service.jwt.BlacklistTokenService;
-import com.metlab_project.backend.service.user.UserService;
-import lombok.RequiredArgsConstructor;
+import java.util.Arrays;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.util.Arrays;
-import java.util.List;
+import com.metlab_project.backend.security.jwt.JwtAuthenticationFilter;
+import com.metlab_project.backend.security.jwt.JwtTokenProvider;
+import com.metlab_project.backend.security.jwt.JwtTokenValidator;
+import com.metlab_project.backend.service.jwt.BlacklistTokenService;
+import com.metlab_project.backend.service.user.UserService;
+
+import lombok.RequiredArgsConstructor;
 
 @Configuration
 @EnableWebSecurity
