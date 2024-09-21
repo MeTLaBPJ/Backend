@@ -60,11 +60,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter implements Fil
         try {
             jwtTokenValidator.validateAccessToken(accessToken);
 
-            String username = jwtTokenProvider.getUserInfo(accessToken).getSchoolEmail();
+            String schoolEmail = jwtTokenProvider.getUserInfo(accessToken).getSchoolEmail();
             UserRole userRole = jwtTokenProvider.getUserInfo(accessToken).getRole();
 
             User user = User.builder()
-                    .schoolEmail(username)
+                    .schoolEmail(schoolEmail)
                     .role(userRole)
                     .build();
 

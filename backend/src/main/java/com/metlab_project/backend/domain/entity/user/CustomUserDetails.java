@@ -11,44 +11,52 @@ import java.util.Collection;
 public class CustomUserDetails implements UserDetails {
     private final User user;
 
-    public Collection<? extends GrantedAuthority> getAuthorities(){
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
         Collection<GrantedAuthority> collection = new ArrayList<>();
-        collection.add((GrantedAuthority) () -> user.getRole().toString());
+
+        // 역할이 null이 아닐 경우에만 추가
+        if (user.getRole() != null) {
+            collection.add((GrantedAuthority) () -> user.getRole().toString());
+        } else {
+            // 기본 역할 추가 또는 예외 처리
+            collection.add((GrantedAuthority) () -> "ROLE_ANONYMOUS"); // 기본 역할 설정
+        }
 
         return collection;
     }
 
-    public User getUser(){
+    public User getUser() {
         return this.user;
     }
 
     @Override
-    public String getUsername(){
+    public String getUsername() {
         return this.user.getSchoolEmail();
     }
 
     @Override
-    public String getPassword(){
+    public String getPassword() {
         return this.user.getPassword();
     }
 
     @Override
-    public boolean isAccountNonExpired(){
+    public boolean isAccountNonExpired() {
         return true;
     }
 
     @Override
-    public boolean isAccountNonLocked(){
+    public boolean isAccountNonLocked() {
         return true;
     }
 
     @Override
-    public boolean isCredentialsNonExpired(){
+    public boolean isCredentialsNonExpired() {
         return true;
     }
 
     @Override
-    public boolean isEnabled(){
+    public boolean isEnabled() {
         return true;
     }
 }

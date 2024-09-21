@@ -1,6 +1,9 @@
 package com.metlab_project.backend.security;
 
+import com.metlab_project.backend.repository.jwt.RefreshTokenRepository;
+import com.metlab_project.backend.repository.user.UserRepository;
 import com.metlab_project.backend.security.jwt.JwtAuthenticationFilter;
+import com.metlab_project.backend.security.jwt.JwtTimeComponent;
 import com.metlab_project.backend.security.jwt.JwtTokenProvider;
 import com.metlab_project.backend.security.jwt.JwtTokenValidator;
 import com.metlab_project.backend.service.jwt.BlacklistTokenService;
@@ -9,6 +12,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -18,7 +23,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
+
 
 import java.util.Arrays;
 import java.util.List;
@@ -27,12 +32,14 @@ import java.util.List;
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
-
     private final UserService userService;
-    private final JwtTokenProvider jwtTokenProvider;
     private final JwtTokenValidator jwtTokenValidator;
+    private final RefreshTokenRepository refreshTokenRepository;
+    private final JwtTokenProvider jwtTokenProvider;
+    private final AuthenticationConfiguration authenticationConfiguration;
+    private final JwtTimeComponent jwtTimeComponent;
+    private final UserRepository userRepository;
     private final BlacklistTokenService blacklistTokenService;
-
     private static final List<String> whiteListUrl = Arrays.asList(
             "/api/auth/login",
             "/sign-up/email",
@@ -58,6 +65,11 @@ public class SecurityConfig {
     private List<String> exposedHeaders;
 
     @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
+        return configuration.getAuthenticationManager();
+    }
+
+    @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
         http
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
@@ -66,8 +78,21 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                     .requestMatchers(whiteListUrl.toArray(new String[0])).permitAll()
                     //.anyRequest().authenticated()
-            )
-            .addFilterBefore(new JwtAuthenticationFilter(userService, jwtTokenProvider,jwtTokenValidator,blacklistTokenService), UsernamePasswordAuthenticationFilter.class);
+                    );
+            
+        http
+            .addFilterAt(new CustomLoginFilter(
+                    authenticationManager(authenticationConfiguration),
+                    refreshTokenRepository,
+                    jwtTokenProvider,
+                    jwtTimeComponent,
+                    userRepository),
+                    UsernamePasswordAuthenticationFilter.class);
+
+    // LoginFilter 앞에 JwtFilter를 추가
+        http
+        .addFilterBefore(new JwtAuthenticationFilter(userService, jwtTokenProvider,jwtTokenValidator, blacklistTokenService), CustomLoginFilter.class);
+        
         return http.build();
     }
 

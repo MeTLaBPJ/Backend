@@ -4,10 +4,10 @@ import com.metlab_project.backend.domain.dto.user.res.UserInfoResponse;
 import com.metlab_project.backend.domain.entity.user.User;
 import com.metlab_project.backend.repository.jwt.RefreshTokenRepository;
 import com.metlab_project.backend.repository.user.UserRepository;
+import com.metlab_project.backend.security.jwt.JwtTimeComponent;
 import com.metlab_project.backend.security.jwt.JwtTokenProvider;
 import com.metlab_project.backend.service.user.UserService;
 import com.metlab_project.backend.domain.entity.jwt.RefreshEntity;
-
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -26,29 +26,19 @@ import java.util.Collection;
 import java.util.Iterator;
 
 @Slf4j
-@RequiredArgsConstructor
 public class CustomLoginFilter extends UsernamePasswordAuthenticationFilter {
-    /**
-     * doFilterInternal을 오버라이딩하지 않아도 동작하는 이유.
-     * Line46를 참고하면, 이 필터가 동작할 대상 URL을 지정해주는 것을 알 수 있음.
-     * 필터를 더 효율적으로 동작시킬 수 있음.
-     */
 
     private final RefreshTokenRepository refreshTokenRepository;
     private final AuthenticationManager authenticationManager;
     private final JwtTokenProvider jwtTokenProvider;
-    private final UserService userService;
+    private final JwtTimeComponent jwtTimeComponent;
     private final UserRepository userRepository;
 
-    public CustomLoginFilter(AuthenticationManager authenticationManager,
-                             RefreshTokenRepository refreshTokenRepository,
-                             JwtTokenProvider jwtTokenProvider,
-                             UserService userService,
-                             UserRepository userRepository) {
+    public CustomLoginFilter(AuthenticationManager authenticationManager, RefreshTokenRepository refreshTokenRepository, JwtTokenProvider jwtTokenProvider, JwtTimeComponent jwtTimeComponent, UserRepository userRepository) {
         this.refreshTokenRepository = refreshTokenRepository;
         this.authenticationManager = authenticationManager;
         this.jwtTokenProvider = jwtTokenProvider;
-        this.userService = userService;
+        this.jwtTimeComponent = jwtTimeComponent;
         this.userRepository = userRepository;
         setFilterProcessesUrl("/api/users/login");
     }
@@ -56,17 +46,21 @@ public class CustomLoginFilter extends UsernamePasswordAuthenticationFilter {
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
 
-        final String schoolEmail = obtainUsername(request);
-        final String password = obtainPassword(request);
+        //클라이언트 요청에서 schoolEmail, password 추출
+        String schoolEmail = request.getParameter("schoolEmail");
+        String password = request.getParameter("password");
 
         log.info("[attemptAuthentication] schoolEmail = {}", schoolEmail);
         log.info("[attemptAuthentication] password = {}", password);
 
+        //스프링 시큐리티에서 schoolEmail password를 검증하기 위해서는 token에 담아야 함
         UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(schoolEmail, password, null);
 
+        //token에 담은 검증을 위한 AuthenticationManager로 전달
         return authenticationManager.authenticate(authToken);
     }
 
+    //로그인 성공시 실행하는 메소드 (여기서 JWT를 발급하면 됨)
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authentication) {
         log.info("[successfulAuthentication] 로그인 성공");
@@ -77,56 +71,57 @@ public class CustomLoginFilter extends UsernamePasswordAuthenticationFilter {
 
         final String schoolEmail = authentication.getName();
         final String role = auth.getAuthority();
+        final String access = jwtTokenProvider.generateAccessToken(schoolEmail);
+        final String refresh = jwtTokenProvider.generateRefreshToken(schoolEmail);
 
-        UserInfoResponse userInfo = userService.getUserInfoBySchoolEmail(schoolEmail);
-
-        final String accessToken = jwtTokenProvider.generateAccessToken(userInfo.getSchoolEmail());
-        final String refreshToken = jwtTokenProvider.generateRefreshToken(schoolEmail);
-
-        log.info("[successfulAuthentication] schoolEmail = {}", schoolEmail);
-        log.info("[successfulAuthentication] access token = {}", accessToken);
-        log.info("[successfulAuthentication] refresh token = {}", refreshToken);
-
-        addRefreshEntity(schoolEmail, refreshToken, jwtTokenProvider.getExpirationDateFromToken(refreshToken).getTime());
+        log.info("[successfulAuthentication] username = {}", schoolEmail);
+        log.info("[successfulAuthentication] access token = {}", access);
+        log.info("[successfulAuthentication] refresh token = {}", refresh);
+        //Refresh 토큰 저장
+        addRefreshEntity(schoolEmail, refresh, jwtTimeComponent.getRefreshExpiration());
 
         /**
-         * JWT 관리 정책
-         * 1. accessToken -> Authorization Header에 포함
-         * 2. refreshToken -> Cookie에 포함
+         * HTTP 인증 방식은 RFC 7235 정의에 따라 아래 인증 헤더 형태를 가져야 한다.
+         * Authorization: 타입 인증토큰
+         * e.g. Authorization: Bearer 인증토큰str
          */
-        response.addHeader("Authorization", "Bearer " + accessToken);
-        response.addCookie(createCookie("refresh", refreshToken, jwtTokenProvider.getExpirationDateFromToken(refreshToken).getTime()));
+        response.addHeader("Authorization", "Bearer " + access);
+        response.addCookie(createCookie("refresh", refresh, jwtTimeComponent.getRefreshExpiration()));
         response.setStatus(HttpServletResponse.SC_OK);
     }
 
     private void addRefreshEntity(String schoolEmail, String refresh, Long refreshExpireTime) {
+        // 기존에 존재하는 Refresh 토큰 삭제
         refreshTokenRepository.findByUser_SchoolEmail(schoolEmail).ifPresent(refreshTokenRepository::delete);
-
+    
+        // 사용자 엔티티 조회
         User user = userRepository.findBySchoolEmail(schoolEmail)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + schoolEmail));
-
+                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다"));
+    
+        // 새로운 RefreshEntity 생성
         RefreshEntity refreshEntity = RefreshEntity.builder()
-                .user(user)
                 .token(refresh)
                 .expiration(refreshExpireTime)
+                .user(user) // User 객체 연결
                 .build();
-
+    
+        // 리프레시 토큰 저장
         refreshTokenRepository.save(refreshEntity);
     }
+    
 
     private Cookie createCookie(String key, String value, Long refreshExpireTime) {
         Cookie cookie = new Cookie(key, value);
         cookie.setHttpOnly(true);
         cookie.setMaxAge(Math.toIntExact(refreshExpireTime / 1000));
-        //cookie.setSecure(true);
-        cookie.setPath("/");
+        //cookie.setPath("/");
         return cookie;
     }
 
+    //로그인 실패시 실행하는 메소드
     @Override
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) {
         log.info("[successfulAuthentication] 로그인 실패");
         response.setStatus(401);
     }
-
 }
