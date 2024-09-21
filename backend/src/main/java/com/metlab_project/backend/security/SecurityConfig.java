@@ -41,7 +41,8 @@ public class SecurityConfig {
             "/error/**",
             "/api/users/join",
             "/api/users/login",
-            "/sign-up/email/check"
+            "/sign-up/email/check",
+            "/isExist/**"
     );
 
     @Value("${cors.allowed-origins}")

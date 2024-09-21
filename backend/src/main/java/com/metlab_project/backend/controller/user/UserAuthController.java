@@ -52,6 +52,12 @@ public ResponseEntity<?> mailConfirmCheck(@RequestBody Map<String, String> reque
     return ResponseEntity.ok(joinService.confirmMailCode(email, code));
 }
 
+    @GetMapping("isExist/{nickname}")
+    public ResponseEntity<?> checkNickname(@PathVariable("nickname") String nickname)
+    {
+        return ResponseEntity.ok(joinService.checkNickname(nickname));
+    }
+
     @PostMapping("/api/users/join")
     public ResponseEntity<?> joinProcess(@Valid @RequestBody UserJoinRequestDto userJoinRequestDto) {
 

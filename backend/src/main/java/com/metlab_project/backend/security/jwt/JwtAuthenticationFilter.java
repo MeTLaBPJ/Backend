@@ -40,7 +40,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter implements Fil
             "/sign-up/email",
             "/api/users/join",
             "/api/users/login",
-            "/sign-up/email/check"
+            "/sign-up/email/check",
+            "/isExist/**"
+
     );
 
     @Override

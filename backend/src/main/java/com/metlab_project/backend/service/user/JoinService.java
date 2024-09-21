@@ -47,6 +47,10 @@ public class JoinService {
 
         userRepository.save(data);
     }
+    
+    public boolean checkNickname(String nickname) {
+        return userRepository.existsByNickname(nickname);
+    }
 
     @Transactional(readOnly = true)
     public String confirmMailCode(String email, String code) {

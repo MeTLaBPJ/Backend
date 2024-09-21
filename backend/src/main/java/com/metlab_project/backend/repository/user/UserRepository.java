@@ -16,4 +16,7 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 
     Page<User> findAll(Pageable pageable);
 
+    Boolean existsByNickname(String Nickname);
+    
+
 }
