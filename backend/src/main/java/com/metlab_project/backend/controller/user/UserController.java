@@ -20,23 +20,21 @@ public class UserController {
 
     @GetMapping("/info")
     @Operation(summary = "유저 마이페이지 정보 불러오기", description = "유저가 설정한 마이페이지에 등록될 정보를 불러옵니다.")
-    public ResponseEntity<UserInfoResponse> getUserInfo() {
-
+    public ResponseEntity<?> getUserInfo() {
         UserInfoResponse response = userService.getUserInfoBySchoolEmail();
         return ResponseEntity.ok(response);
     }
 
-    @PutMapping("/update")
+    @PutMapping("/update") // TODO 전반적인 코드 수정
     @Operation(summary = "유저 마이페이지 정보 수정", description = "유저의 마이페이지에 존재하는 정보를 수정합니다.")
-    public ResponseEntity<UserInfoResponse> updateUserInfo(@Valid @RequestBody UserInfoResponse request) {
-
+    public ResponseEntity<?> updateUserInfo(@Valid @RequestBody UserInfoResponse request) {
         UserInfoResponse response = userService.updateUserInfoBySchoolEmail(request);
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/info/{nickname}/{chatRoomId}")
+    @GetMapping("/info/{nickname}/{chatroomid}")
     @Operation(summary = "참가중인 채팅룸 속 다른 유저 프로필 불러오기", description = "유저가 참가중인 채팅룸 속 다른 유저의 마이페이지 정보를 확인합니다.")
-    public ResponseEntity<UserInfoResponse> getAnotherUserInfo(@PathVariable String nickname, @RequestParam Integer chatRoomId) {
+    public ResponseEntity<?> getAnotherUserInfo(@PathVariable String nickname, @PathVariable("chatroomid") Integer chatRoomId) {
         // 같은 채팅방일 경우 유저 정보 반환
         UserInfoResponse response = userService.getAnotherUserInfoByNickname(nickname, chatRoomId);
         return ResponseEntity.ok(response);
@@ -44,8 +42,7 @@ public class UserController {
 
     @DeleteMapping("/delete")
     @Operation(summary = "회원 탈퇴", description = "유저의 계정을 삭제합니다.")
-    public ResponseEntity<String> deleteUserInfo(){
-
+    public ResponseEntity<?> deleteUserInfo(){
         userService.deleteUserInfoBySchoolEmail();
         return ResponseEntity.ok("User account deleted successfully.");
     }

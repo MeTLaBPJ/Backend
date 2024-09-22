@@ -1,7 +1,12 @@
 package com.metlab_project.backend.service.user;
 
+import com.metlab_project.backend.domain.entity.user.CustomUserDetails;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,16 +21,26 @@ import com.metlab_project.backend.repository.user.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 
+@Slf4j
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class UserService {
+public class UserService implements UserDetailsService {
     private final UserRepository userRepository;
     private final ChatRoomRepository chatRoomRepository;
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        User user = userRepository.findBySchoolEmail(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + username));
+        return new CustomUserDetails(user);
+    }
 
     // 현재 유저의 이메일을 가져옴
     private String getUserEmail() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        log.info("[Auth] {}, {}", authentication, authentication.getName());
+
         return authentication.getName();
     }
 

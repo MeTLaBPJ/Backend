@@ -50,4 +50,10 @@ public class UserInfoResponse {
     private String profileImage;
 
     private UserRole role;
+
+    public UserInfoResponse(String schoolEmail, String nickname, UserRole role) {
+        this.schoolEmail = schoolEmail;
+        this.nickname = nickname;
+        this.role = role;
+    }
 }

@@ -8,6 +8,8 @@ import com.metlab_project.backend.domain.dto.chatroom.res.MemberResponse;
 import com.metlab_project.backend.domain.entity.ChatRoom;
 import com.metlab_project.backend.domain.entity.Message;
 import com.metlab_project.backend.domain.entity.user.User;
+import com.metlab_project.backend.exception.CustomErrorCode;
+import com.metlab_project.backend.exception.CustomException;
 import com.metlab_project.backend.repository.chatroom.ChatRoomRepository;
 import com.metlab_project.backend.repository.message.MessageRepository;
 
@@ -45,13 +47,13 @@ public class ChatRoomService {
     }
 
     public List<ChatRoomResponse> getMyChatrooms() {
-        Integer currentUserId = getCurrentUserId();
-        List<ChatRoom> myChatRooms = chatRoomRepository.findAll().stream()
+        String schoolEmail = getUserEmail();
+        List<ChatRoom> chatrooms = chatRoomRepository.findAll().stream()
                 .filter(chatRoom -> chatRoom.getUsers().stream()
-                        .anyMatch(user -> user.getId().equals(currentUserId)))
+                        .anyMatch(user -> user.getSchoolEmail().equals(schoolEmail)))
                 .collect(Collectors.toList());
 
-        return myChatRooms.stream()
+        return chatrooms.stream()
                 .map(chatRoom -> new ChatRoomResponse(
                         chatRoom.getId(),
                         chatRoom.getTitle(),
@@ -68,9 +70,9 @@ public class ChatRoomService {
     }
 
 
-    public ChatRoomDetailResponse getChatRoomDetail(Integer roomId) {
-        ChatRoom chatRoom = chatRoomRepository.findById(roomId)
-                .orElseThrow(() -> new RuntimeException("채팅룸을 찾을 수 없습니다."));
+    public ChatRoomDetailResponse getChatRoomDetail(Integer chatroomId) {
+        ChatRoom chatRoom = chatRoomRepository.findById(chatroomId)
+                .orElseThrow(() -> new CustomException(CustomErrorCode.CHATROOM_NOT_FOUND, "Chat room with ID " + chatroomId + " not found"));
 
         List<MemberResponse> members = chatRoom.getUsers().stream()
                 .map(user -> new MemberResponse(
@@ -85,8 +87,7 @@ public class ChatRoomService {
     }
 
     public ChatRoomResponse createChatroom(ChatroomCreateRequest request) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User currentUser = (User) authentication.getPrincipal();
+        String schoolEmail = getUserEmail();
 
         ChatRoom chatRoom = ChatRoom.builder()
                 .chatroomName(request.getTitle())
@@ -97,7 +98,8 @@ public class ChatRoomService {
                 .participantMaleCount(request.getMaleCount())
                 .participantFemaleCount(request.getFemaleCount())
                 .enterCheck(false)
-                .host(currentUser.getSchoolEmail())
+                .host(schoolEmail)
+                .totalParticipant(request.getFemaleCount()*2)
                 .status(ChatRoom.Status.WAITING)
                 .build();
 
@@ -123,36 +125,26 @@ public class ChatRoomService {
 
     public List<Message> getChatMessages(Integer chatroomId) {
         ChatRoom chatRoom = chatRoomRepository.findById(chatroomId)
-                .orElseThrow(() -> new IllegalArgumentException("채팅방을 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException(CustomErrorCode.CHATROOM_NOT_FOUND, "Chat room with ID " + chatroomId + " not found"));
 
-        Integer currentUserId = getCurrentUserId();
-        boolean isParticipant = chatRoom.getUsers().stream()
-                .anyMatch(user -> user.getId().equals(currentUserId));
-
-        if (!isParticipant) {
-            throw new SecurityException("채팅방에 참여하지 않은 사용자는 채팅 내역을 볼 수 없습니다.");
-        }
+//        String schoolEmail = getUserEmail();
+//
+//        if (!chatRoom.getUsers().stream().anyMatch(user -> user.getSchoolEmail().equals(schoolEmail))) {
+//            throw new CustomException(CustomErrorCode.NO_AUTHORITY_IN_CHATROOM, "");
+//        }
 
         return messageRepository.findByChatRoom_IdAndTypeOrderByCreatedAtAsc(chatroomId, Message.MessageType.CHAT);
     }
 
-    private Integer getCurrentUserId() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User user = (User) authentication.getPrincipal();
-        return user.getId();
-    }
+    public ChatRoomDetailInChatResponse getChatRoomDetailInChat(Integer chatroomId) {
+        ChatRoom chatRoom = chatRoomRepository.findById(chatroomId)
+                .orElseThrow(() -> new CustomException(CustomErrorCode.CHATROOM_NOT_FOUND, "Chat room with ID " + chatroomId + " not found"));
 
-    public ChatRoomDetailInChatResponse getChatRoomDetailInChat(int roomId) {
-        ChatRoom chatRoom = chatRoomRepository.findById(roomId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 채팅방을 찾을 수 없습니다."));
-
-        Integer currentUserId = getCurrentUserId();
-        boolean isParticipant = chatRoom.getUsers().stream()
-                .anyMatch(user -> user.getId().equals(currentUserId));
-
-        if (!isParticipant) {
-            throw new SecurityException("채팅방에 참여하지 않은 사용자는 접근할 수 없습니다.");
-        }
+//        String schoolEmail = getUserEmail();
+//
+////        if (!chatRoom.getUsers().stream().anyMatch(user -> user.getSchoolEmail().equals(schoolEmail))) {
+////            throw new CustomException(CustomErrorCode.NO_AUTHORITY_IN_CHATROOM, "");
+////        }
 
         List<MemberResponse> members = chatRoom.getUsers().stream()
                 .map(user -> new MemberResponse(user.getGender(), user.getDepartment(), user.getStudentId(), user.getNickname(), user.getProfileImage()))
@@ -168,5 +160,10 @@ public class ChatRoomService {
                 .possibleEnterNumber(possibleEnterNumber)
                 .deadline(chatRoom.getDeadline())
                 .build();
+    }
+
+    private String getUserEmail() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return authentication.getName();
     }
 }

@@ -46,25 +46,22 @@ public class ChatRoomController {
     @PostMapping
     @Operation(summary = "채팅룸 생성하기", description = "채팅룸을 생성합니다.")
     public ResponseEntity<?> createChatroom(@Valid @RequestBody ChatroomCreateRequest request) {
-        // TODO @Valid 사용 시 유효성 검증 실패 시 MethodArgumentNotValidException 발생 가능
-        // TODO ChatroomCreateRequest @Valid 적용
         ChatRoomResponse response = chatRoomService.createChatroom(request);
         return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/{chatroomid}")
     @Operation(summary = "채팅룸 삭제하기", description = "특정 채팅룸을 삭제합니다.")
-    public ResponseEntity<Void> deleteChatroom(@PathVariable("chatroomId") Integer chatroomId) {
-        // TODO 채팅룸 삭제 권한 체크
+    public ResponseEntity<?> deleteChatroom(@PathVariable("chatroomid") Integer chatroomId) {
         chatRoomService.deleteChatroom(chatroomId);
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/{chatroomid}/messages")
     @Operation(summary = "채팅룸 내역 가져오기", description = "특정 채팅룸의 채팅 내역을 가져옵니다.")
-    public ResponseEntity<List<Message>> getChatMessages(@PathVariable("chatroomId") Integer chatroomId) {
-        List<Message> messages = chatRoomService.getChatMessages(chatroomId);
-        return ResponseEntity.ok(messages);
+    public ResponseEntity<?> getChatMessages(@PathVariable("chatroomid") Integer chatroomId) {
+        List<Message> response = chatRoomService.getChatMessages(chatroomId);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{chatroomId}")
@@ -73,5 +70,4 @@ public class ChatRoomController {
         ChatRoomDetailInChatResponse response = chatRoomService.getChatRoomDetailInChat(chatroomId);
         return ResponseEntity.ok(response);
     }
-
 }

@@ -33,7 +33,7 @@ import lombok.Setter;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "User")
+@Table(name = "user")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -49,7 +49,7 @@ public class User {
     private String nickname;
 
     @Builder.Default
-    @Column(name = "ticket")
+    @Column(name = "tickets")
     private Integer tickets = 3;
 
     private LocalDate birthday;

@@ -13,4 +13,5 @@ import lombok.Setter;
 @NoArgsConstructor
 public class CustomErrorResponse {
     private CustomErrorCode status;
+    private String errorCode;
 }

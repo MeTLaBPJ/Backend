@@ -14,8 +14,6 @@ public class GlobalExceptionHandler {
         logger.error("CustomException occurred: {}", ex.getMessage(), ex);
         return ResponseEntity
                 .status(ex.getCustomErrorCode().getHttpStatus())
-                .body(new CustomErrorResponse(ex.getCustomErrorCode()));
+                .body(new CustomErrorResponse(ex.getCustomErrorCode(), ex.getDetail()));
     }
-
-
 }
