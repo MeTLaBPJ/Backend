@@ -71,7 +71,7 @@ public class JwtTokenValidator {
         } catch (ExpiredJwtException e) {
             throw new CustomException(CustomErrorCode.REFRESH_TOKEN_EXPIRED);
         } catch (SignatureException | MalformedJwtException | UnsupportedJwtException e) {
-            throw new CustomException(CustomErrorCode.TOKEN_INVALID);
+            throw new CustomException(CustomErrorCode.TOKEN_INVALID, e.getMessage());
         } catch (IllegalArgumentException e) {
             throw new CustomException(CustomErrorCode.TOKEN_MISSING);
         }
