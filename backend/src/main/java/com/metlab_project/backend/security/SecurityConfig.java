@@ -24,6 +24,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -47,6 +48,11 @@ public class SecurityConfig {
             "/api/auth/sign-up/check",
             "/api/**",
             "/error/**",
+
+            "/api/users/join",
+            "/api/users/login",
+            "/sign-up/email/check",
+
             "/isExist/**"
     );
 
@@ -70,26 +76,28 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
         http
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .csrf(csrf -> csrf.disable())
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth -> auth
-                                .requestMatchers(whiteListUrl.toArray(new String[0])).permitAll()
-                        //.anyRequest().authenticated()
-                );
 
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            .csrf(csrf -> csrf.disable())
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .authorizeHttpRequests(auth -> auth
+                    .requestMatchers(whiteListUrl.toArray(new String[0])).permitAll()
+                    //.anyRequest().authenticated()
+                    );
+            
         http
-                .addFilterAt(new CustomLoginFilter(
-                                authenticationManager(authenticationConfiguration),
-                                refreshTokenRepository,
-                                jwtTokenProvider,
-                                jwtTimeComponent,
-                                userRepository),
-                        UsernamePasswordAuthenticationFilter.class);
+            .addFilterAt(new CustomLoginFilter(
+                    authenticationManager(authenticationConfiguration),
+                    refreshTokenRepository,
+                    jwtTokenProvider,
+                    jwtTimeComponent,
+                    userRepository),
+                    UsernamePasswordAuthenticationFilter.class);
 
-        // LoginFilter 앞에 JwtFilter를 추가
+    // LoginFilter 앞에 JwtFilter를 추가
         http
-                .addFilterBefore(new JwtAuthenticationFilter(userService, jwtTokenProvider,jwtTokenValidator, blacklistTokenService), CustomLoginFilter.class);
+        .addFilterBefore(new JwtAuthenticationFilter(userService, jwtTokenProvider,jwtTokenValidator, blacklistTokenService), CustomLoginFilter.class);
+        
 
         return http.build();
     }

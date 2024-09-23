@@ -17,8 +17,19 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        log.debug("Getting authorities for user: {}", user.getSchoolEmail());
-        return Collections.singletonList(new SimpleGrantedAuthority(UserRole.ROLE_USER.toString()));
+
+        Collection<GrantedAuthority> collection = new ArrayList<>();
+
+        // 역할이 null이 아닐 경우에만 추가
+        if (user.getRole() != null) {
+            collection.add((GrantedAuthority) () -> user.getRole().toString());
+        } else {
+            // 기본 역할 추가 또는 예외 처리
+            collection.add((GrantedAuthority) () -> "ROLE_ANONYMOUS"); // 기본 역할 설정
+        }
+
+        return collection;
+
     }
 
     public User getUser() {

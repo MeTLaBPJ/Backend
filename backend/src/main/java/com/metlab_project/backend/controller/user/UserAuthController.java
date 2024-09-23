@@ -59,7 +59,14 @@ public class UserAuthController {
         return ResponseEntity.ok(joinService.checkNickname(nickname));
     }
 
-    @PostMapping("/sign-up")
+    @GetMapping("isExist/{nickname}")
+    public ResponseEntity<?> checkNickname(@PathVariable("nickname") String nickname)
+    {
+        return ResponseEntity.ok(joinService.checkNickname(nickname));
+    }
+
+    @PostMapping("/api/users/join")
+
     public ResponseEntity<?> joinProcess(@Valid @RequestBody UserJoinRequestDto userJoinRequestDto) {
 
         log.info("[joinProcess] schoolEmail: {}", userJoinRequestDto.getSchoolEmail());

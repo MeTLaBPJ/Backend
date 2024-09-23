@@ -11,7 +11,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.metlab_project.backend.domain.dto.user.res.UserInfoResponse;
-import com.metlab_project.backend.domain.entity.ChatRoom;
+
+import com.metlab_project.backend.domain.entity.user.CustomUserDetails;
+
 import com.metlab_project.backend.domain.entity.user.User;
 import com.metlab_project.backend.domain.entity.user.UserInformation;
 import com.metlab_project.backend.exception.CustomErrorCode;
@@ -21,11 +23,18 @@ import com.metlab_project.backend.repository.user.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 
-@Slf4j
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class UserService implements UserDetailsService {
+public class UserService implements UserDetailsService{
+
     private final UserRepository userRepository;
     private final ChatRoomRepository chatRoomRepository;
 
@@ -119,9 +128,15 @@ public class UserService implements UserDetailsService {
     }
 
 
-    public void deleteUserInfo(){
-        String schoolEmail = getUserEmail();
-        validateUserAccess(schoolEmail);
+  @Override
+  @Transactional
+public UserDetails loadUserByUsername(String schoolEmail) throws UsernameNotFoundException {
+    User user = userRepository.findBySchoolEmail(schoolEmail)
+        .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + schoolEmail));
+    return new CustomUserDetails(user);
+}
+
+    public UserInfoResponse updateUserInfo(String schoolEmail, UserInfoResponse updatedUserInfo) {
 
         User user = userRepository.findBySchoolEmail(schoolEmail)
                 .orElseThrow(() -> new CustomException(CustomErrorCode.USER_NOT_FOUND, "User with Email " + schoolEmail + " not found"));
