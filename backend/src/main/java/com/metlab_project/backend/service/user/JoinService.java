@@ -1,18 +1,14 @@
 package com.metlab_project.backend.service.user;
 
+import com.metlab_project.backend.domain.dto.user.req.UserJoinRequestDto;
+import com.metlab_project.backend.domain.entity.user.User;
+import com.metlab_project.backend.repository.user.UserRepository;
+import com.metlab_project.backend.repository.email.EmailAuthRepository; // 추가된 임포트
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import com.metlab_project.backend.domain.dto.user.req.UserJoinRequestDto;
-import com.metlab_project.backend.domain.entity.user.User;
-import com.metlab_project.backend.exception.EmailAuthNotEqualsException;
-import com.metlab_project.backend.repository.email.EmailAuthRepository; // 추가된 임포트
-import com.metlab_project.backend.repository.user.UserRepository;
-
-import lombok.extern.slf4j.Slf4j;
-
-import java.time.LocalDate;
+import com.metlab_project.backend.exception.*;
 
 
 @Slf4j
@@ -47,10 +43,13 @@ public class JoinService {
                 .studentId(userJoinRequestDto.getStudentId())
                 .college(userJoinRequestDto.getCollege())
                 .department(userJoinRequestDto.getDepartment())
-                .birthday(LocalDate.parse(userJoinRequestDto.getBirthday()))
                 .build();
 
         userRepository.save(data);
+    }
+
+    public boolean checkNickname(String nickname) {
+        return userRepository.existsByNickname(nickname);
     }
 
     @Transactional(readOnly = true)

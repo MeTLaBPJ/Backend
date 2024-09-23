@@ -3,6 +3,7 @@ package com.metlab_project.backend.controller.chatroom;
 import java.util.List;
 
 import com.metlab_project.backend.domain.dto.chatroom.res.ChatRoomDetailInChatResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,6 +23,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/chatroom")
@@ -33,6 +35,7 @@ public class ChatRoomController {
     @Operation(summary = "모든 채팅룸 불러오기", description = "모든 채팅룸을 불러옵니다.")
     public ResponseEntity<?> getAllChatroom() {
         List<ChatRoomResponse> response = chatRoomService.getAllChatrooms();
+        log.info("{}", response);
         return ResponseEntity.ok(response);
     }
 
@@ -64,9 +67,9 @@ public class ChatRoomController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/{chatroomId}")
+    @GetMapping("/{chatroomid}")
     @Operation(summary = "특정 채팅방 상세 정보 가져오기", description = "특정 채팅방의 상세 정보를 반환합니다.")
-    public ResponseEntity<?> getChatRoomDetailInChat(@PathVariable("chatroomId") int chatroomId) {
+    public ResponseEntity<?> getChatRoomDetailInChat(@PathVariable("chatroomid") int chatroomId) {
         ChatRoomDetailInChatResponse response = chatRoomService.getChatRoomDetailInChat(chatroomId);
         return ResponseEntity.ok(response);
     }

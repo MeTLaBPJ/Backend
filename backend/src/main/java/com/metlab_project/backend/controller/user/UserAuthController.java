@@ -1,18 +1,10 @@
 package com.metlab_project.backend.controller.user;
 
-import java.util.Map;
-
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.metlab_project.backend.domain.dto.user.req.LoginRequestDto;
 import com.metlab_project.backend.domain.dto.user.req.UserJoinRequestDto;
-import com.metlab_project.backend.service.email.EmailService;
 import com.metlab_project.backend.service.user.JoinService;
 import com.metlab_project.backend.service.user.ReissueService;
+import com.metlab_project.backend.service.email.EmailService;
 
 import io.swagger.annotations.ApiOperation;
 import jakarta.servlet.http.HttpServletRequest;
@@ -20,23 +12,27 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import java.util.Map;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 
 @RequiredArgsConstructor
 @Slf4j
 @RestController
+@RequestMapping("/api/auth")
 public class UserAuthController {
 
     private final JoinService joinService;
     private final ReissueService reissueService;
     private final EmailService emailService;
-    
-    @PostMapping("/api/users/login")
+
+    @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequestDto loginRequestDto) {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/api/users/logout")
+    @PostMapping("/logout")
     public ResponseEntity<?> logout() {
         return ResponseEntity.ok().build();
     }
@@ -46,7 +42,7 @@ public class UserAuthController {
     public ResponseEntity<?> mailConfirm(@RequestParam("email") String email) throws Exception {
         return ResponseEntity.ok(emailService.sendSimpleMessage(email));
     }
-    
+
 
     @PostMapping("/sign-up/email/check")
     public ResponseEntity<?> mailConfirmCheck(@RequestBody Map<String, String> request) throws Exception {
@@ -57,7 +53,13 @@ public class UserAuthController {
         return ResponseEntity.ok(joinService.confirmMailCode(email, code));
     }
 
-    @PostMapping("/api/users/join")
+    @GetMapping("isExist/{nickname}")
+    public ResponseEntity<?> checkNickname(@PathVariable("nickname") String nickname)
+    {
+        return ResponseEntity.ok(joinService.checkNickname(nickname));
+    }
+
+    @PostMapping("/join")
     public ResponseEntity<?> joinProcess(@Valid @RequestBody UserJoinRequestDto userJoinRequestDto) {
 
         log.info("[joinProcess] schoolEmail: {}", userJoinRequestDto.getSchoolEmail());
@@ -67,9 +69,8 @@ public class UserAuthController {
         return ResponseEntity.ok().build();
     }
 
-     @PostMapping("/api/users/reissue")
+    @PostMapping("/reissue")
     public ResponseEntity<?> reissue(HttpServletRequest request, HttpServletResponse response) {
         return reissueService.reissueRefreshToken(request, response);
     }
-
 }

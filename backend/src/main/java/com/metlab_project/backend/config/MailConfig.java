@@ -1,13 +1,13 @@
 package com.metlab_project.backend.config;
 
-import java.util.Properties;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
+
+import java.util.Properties;
 
 @PropertySource("classpath:mail.properties")
 @Configuration
@@ -19,6 +19,7 @@ public class MailConfig {
     private String id;
     @Value("${spring.mail.password}")
     private String password;
+
 
     @Bean
     public JavaMailSender javaMailService() {
