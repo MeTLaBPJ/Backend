@@ -13,10 +13,15 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     Boolean existsBySchoolEmail(String schoolEmail);
 
     Optional<User> findBySchoolEmail(String schoolEmail);
-
     Page<User> findAll(Pageable pageable);
+    Optional<User> findByNickname(String nickname);
+
+    Boolean existsByNickname(String nickname);
+
+
 
     Boolean existsByNickname(String nickname);
     
 
 }
+

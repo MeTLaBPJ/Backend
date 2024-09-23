@@ -8,10 +8,10 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
+@Entity
 @Getter
 @NoArgsConstructor
 @Table(name = "email_auth")
-@Entity
 public class EmailAuth {
     @Id
     @Column(name = "email_key", nullable = false)

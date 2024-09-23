@@ -1,10 +1,12 @@
 package com.metlab_project.backend.domain.dto;
 
+import org.springframework.http.ResponseEntity;
+
 import com.metlab_project.backend.exception.CustomErrorCode;
 import com.metlab_project.backend.exception.CustomException;
+
 import lombok.Builder;
 import lombok.Getter;
-import org.springframework.http.ResponseEntity;
 
 @Getter
 @Builder

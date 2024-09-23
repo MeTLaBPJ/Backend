@@ -69,9 +69,9 @@ public class JwtTokenValidator {
 
             return true;
         } catch (ExpiredJwtException e) {
-            throw new CustomException(CustomErrorCode.REFRESH_TOKEN_EXPIRED);
+            throw new CustomException(CustomErrorCode.REFRESH_TOKEN_EXPIRED, e.getMessage());
         } catch (SignatureException | MalformedJwtException | UnsupportedJwtException e) {
-            throw new CustomException(CustomErrorCode.TOKEN_INVALID);
+            throw new CustomException(CustomErrorCode.TOKEN_INVALID, e.getMessage());
         } catch (IllegalArgumentException e) {
             throw new CustomException(CustomErrorCode.TOKEN_MISSING);
         }

@@ -42,13 +42,17 @@ public class SecurityConfig {
     private final BlacklistTokenService blacklistTokenService;
     private static final List<String> whiteListUrl = Arrays.asList(
             "/api/auth/login",
-            "/sign-up/email",
-            "/api/auth/register",
+            "/api/auth/logout",
+            "/api/auth/sign-up",
+            "/api/auth/sign-up/email",
+            "/api/auth/sign-up/check",
             "/api/**",
             "/error/**",
+
             "/api/users/join",
             "/api/users/login",
             "/sign-up/email/check",
+
             "/isExist/**"
     );
 
@@ -72,6 +76,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
         http
+
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .csrf(csrf -> csrf.disable())
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -93,6 +98,7 @@ public class SecurityConfig {
         http
         .addFilterBefore(new JwtAuthenticationFilter(userService, jwtTokenProvider,jwtTokenValidator, blacklistTokenService), CustomLoginFilter.class);
         
+
         return http.build();
     }
 

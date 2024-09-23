@@ -1,26 +1,13 @@
-package com.metlab_project.backend.domain.dto.user.res;
-
-import com.metlab_project.backend.domain.entity.user.UserRole;
+package com.metlab_project.backend.domain.dto.user.req;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Data
 @Getter
-@Builder
+@Setter
 @NoArgsConstructor
-@AllArgsConstructor
-public class UserInfoResponse {
-
-    public UserInfoResponse(String schoolEmail, UserRole role) {
-        this.schoolEmail = schoolEmail;
-        this.role = role;
-    }
+public class UserUpdateInfoRequest {
 
     @NotBlank(message = "School email cannot be blank")
     private String schoolEmail;
@@ -48,12 +35,4 @@ public class UserInfoResponse {
     private String drinking;
     private String smoking;
     private String profileImage;
-
-    private UserRole role;
-
-    public UserInfoResponse(String schoolEmail, String nickname, UserRole role) {
-        this.schoolEmail = schoolEmail;
-        this.nickname = nickname;
-        this.role = role;
-    }
 }

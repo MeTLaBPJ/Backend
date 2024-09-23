@@ -35,6 +35,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter implements Fil
 
     private static final AntPathMatcher pathMatcher = new AntPathMatcher();
     private static final List<String> whiteListUrl = Arrays.asList(
+
             "/api/auth/login",
             "/api/auth/register",
             "/sign-up/email",

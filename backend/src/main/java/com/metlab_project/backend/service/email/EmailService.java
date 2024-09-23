@@ -1,17 +1,19 @@
 package com.metlab_project.backend.service.email;
 
-import com.metlab_project.backend.domain.entity.email.EmailAuth;
-import com.metlab_project.backend.repository.email.EmailAuthRepository;
-import jakarta.mail.MessagingException;
-import jakarta.mail.internet.InternetAddress;
-import jakarta.mail.internet.MimeMessage;
-import lombok.RequiredArgsConstructor;
+import java.io.UnsupportedEncodingException;
+import java.util.Random;
+
 import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
-import java.io.UnsupportedEncodingException;
-import java.util.Random;
+import com.metlab_project.backend.domain.entity.email.EmailAuth;
+import com.metlab_project.backend.repository.email.EmailAuthRepository;
+
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.InternetAddress;
+import jakarta.mail.internet.MimeMessage;
+import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @Service
@@ -53,7 +55,9 @@ public class EmailService {
         StringBuilder key = new StringBuilder();
         Random rnd = new Random();
 
+
         for (int i = 0; i < 6; i++) { // 인증코드 6자리
+
             int index = rnd.nextInt(3);
 
             switch (index) {
