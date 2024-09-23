@@ -30,29 +30,13 @@ public class UserService implements UserDetailsService {
     private final ChatRoomRepository chatRoomRepository;
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepository.findBySchoolEmail(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + username));
+    @Transactional
+    public UserDetails loadUserByUsername(String schoolEmail) throws UsernameNotFoundException {
+        User user = userRepository.findBySchoolEmail(schoolEmail)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + schoolEmail));
         return new CustomUserDetails(user);
     }
 
-    // 현재 유저의 이메일을 가져옴
-    private String getUserEmail() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        log.info("[Auth] {}, {}", authentication, authentication.getName());
-
-        return authentication.getName();
-    }
-
-    // 유저 접근 권한 확인
-    private void validateUserAccess(String schoolEmail) {
-        String userEmail = getUserEmail();
-        if (!userEmail.equals(schoolEmail)) {
-            throw new CustomException(CustomErrorCode.FORBIDDEN_ACCESS_TO_OTHER_USER_INFO, "Access denied for user " + schoolEmail);
-        }
-    }
-
-    // 유저 정보 가져옴
     public UserInfoResponse getUserInfoBySchoolEmail(String schoolEmail) {
         validateUserAccess(schoolEmail);
 
@@ -72,25 +56,7 @@ public class UserService implements UserDetailsService {
         return getUserInfoBySchoolEmail(schoolEmail);
     }
 
-    private UserInfoResponse buildUserInfoResponse(User user, UserInformation userInformation) {
-        return UserInfoResponse.builder()
-                .schoolEmail(user.getSchoolEmail())
-                .nickname(user.getNickname())
-                .gender(user.getGender())
-                .studentId(user.getStudentId())
-                .college(user.getCollege())
-                .department(user.getDepartment())
-                .mbti(user.getMbti() != null ? user.getMbti() : "Unknown")
-                .shortIntroduce(userInformation.getShortIntroduce())
-                .height(userInformation.getHeight())
-                .drinking(userInformation.getDrinking())
-                .smoking(userInformation.getSmoking())
-                .profileImage(userInformation.getProfileImage())
-                .build();
-    }
-
-    // 유저 정보 수정
-    public UserInfoResponse updateUserInfoBySchoolEmail(UserInfoResponse updatedUserInfo) {
+    public UserInfoResponse updateUserDetail(UserInfoResponse updatedUserInfo) {
         String schoolEmail = getUserEmail();
         validateUserAccess(schoolEmail);
 
@@ -123,8 +89,7 @@ public class UserService implements UserDetailsService {
                 .build();
     }
 
-    // 다른 유저 정보 가져옴
-    public UserInfoResponse getAnotherUserInfoByNickname(String nickname, Integer chatRoomId){
+    public UserInfoResponse getAnotherUserDetail(String nickname, Integer chatRoomId){
         String schoolEmail = getUserEmail();
         validateUserAccess(schoolEmail);
 
@@ -153,7 +118,48 @@ public class UserService implements UserDetailsService {
                 .build();
     }
 
-    // 동일한 채팅방에 접속 중인지 확인
+
+    public void deleteUserInfo(){
+        String schoolEmail = getUserEmail();
+        validateUserAccess(schoolEmail);
+
+        User user = userRepository.findBySchoolEmail(schoolEmail)
+                .orElseThrow(() -> new CustomException(CustomErrorCode.USER_NOT_FOUND, "User with Email " + schoolEmail + " not found"));
+
+        userRepository.delete(user);
+    }
+
+    private void validateUserAccess(String schoolEmail) {
+        String userEmail = getUserEmail();
+        if (!userEmail.equals(schoolEmail)) {
+            throw new CustomException(CustomErrorCode.FORBIDDEN_ACCESS_TO_OTHER_USER_INFO, "Access denied for user " + schoolEmail);
+        }
+    }
+
+    private String getUserEmail() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        log.info("[Auth] {}, {}", authentication, authentication.getName());
+
+        return authentication.getName();
+    }
+
+    private UserInfoResponse buildUserInfoResponse(User user, UserInformation userInformation) {
+        return UserInfoResponse.builder()
+                .schoolEmail(user.getSchoolEmail())
+                .nickname(user.getNickname())
+                .gender(user.getGender())
+                .studentId(user.getStudentId())
+                .college(user.getCollege())
+                .department(user.getDepartment())
+                .mbti(user.getMbti() != null ? user.getMbti() : "Unknown")
+                .shortIntroduce(userInformation.getShortIntroduce())
+                .height(userInformation.getHeight())
+                .drinking(userInformation.getDrinking())
+                .smoking(userInformation.getSmoking())
+                .profileImage(userInformation.getProfileImage())
+                .build();
+    }
+
     public void checkUserInChatRoom(String requestingUserEmail, String targetUserNickname, Integer chatRoomId) {
         User requestingUser = userRepository.findBySchoolEmail(requestingUserEmail)
                 .orElseThrow(() -> new CustomException(CustomErrorCode.USER_NOT_FOUND, "User with Email " + requestingUserEmail + " not found"));
@@ -173,16 +179,5 @@ public class UserService implements UserDetailsService {
         if (!isRequestingUserInRoom || !isTargetUserInRoom) {
             throw new CustomException(CustomErrorCode.FORBIDDEN_ACCESS_TO_OTHER_USER_INFO, "Only users' information in the same chat room is accessible");
         }
-    }
-
-    // 유저 정보 삭제
-    public void deleteUserInfoBySchoolEmail(){
-        String schoolEmail = getUserEmail();
-        validateUserAccess(schoolEmail);
-
-        User user = userRepository.findBySchoolEmail(schoolEmail)
-                .orElseThrow(() -> new CustomException(CustomErrorCode.USER_NOT_FOUND, "User with Email " + schoolEmail + " not found"));
-
-        userRepository.delete(user);
     }
 }

@@ -35,5 +35,4 @@ public class UserUpdateInfoRequest {
     private String drinking;
     private String smoking;
     private String profileImage;
-
 }
