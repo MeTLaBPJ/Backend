@@ -1,10 +1,6 @@
 package com.metlab_project.backend.exception;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 @Setter
@@ -13,5 +9,4 @@ import lombok.Setter;
 @NoArgsConstructor
 public class CustomErrorResponse {
     private CustomErrorCode status;
-    private String errorCode;
 }

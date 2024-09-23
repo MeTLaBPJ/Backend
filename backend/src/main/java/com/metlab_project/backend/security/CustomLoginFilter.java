@@ -1,21 +1,25 @@
 package com.metlab_project.backend.security;
 
+import com.metlab_project.backend.domain.dto.user.res.UserInfoResponse;
 import com.metlab_project.backend.domain.entity.user.User;
 import com.metlab_project.backend.repository.jwt.RefreshTokenRepository;
 import com.metlab_project.backend.repository.user.UserRepository;
 import com.metlab_project.backend.security.jwt.JwtTimeComponent;
 import com.metlab_project.backend.security.jwt.JwtTokenProvider;
+import com.metlab_project.backend.service.user.UserService;
 import com.metlab_project.backend.domain.entity.jwt.RefreshEntity;
 import jakarta.servlet.FilterChain;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import java.util.Collection;
@@ -36,15 +40,13 @@ public class CustomLoginFilter extends UsernamePasswordAuthenticationFilter {
         this.jwtTokenProvider = jwtTokenProvider;
         this.jwtTimeComponent = jwtTimeComponent;
         this.userRepository = userRepository;
-        setFilterProcessesUrl("/api/auth/login");
+        setFilterProcessesUrl("/api/users/login");
     }
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
 
-
         //클라이언트 요청에서 schoolEmail, password 추출
-
         String schoolEmail = request.getParameter("schoolEmail");
         String password = request.getParameter("password");
 
@@ -72,7 +74,6 @@ public class CustomLoginFilter extends UsernamePasswordAuthenticationFilter {
         final String access = jwtTokenProvider.generateAccessToken(schoolEmail);
         final String refresh = jwtTokenProvider.generateRefreshToken(schoolEmail);
 
-
         log.info("[successfulAuthentication] username = {}", schoolEmail);
         log.info("[successfulAuthentication] access token = {}", access);
         log.info("[successfulAuthentication] refresh token = {}", refresh);
@@ -86,7 +87,6 @@ public class CustomLoginFilter extends UsernamePasswordAuthenticationFilter {
          */
         response.addHeader("Authorization", "Bearer " + access);
         response.addCookie(createCookie("refresh", refresh, jwtTimeComponent.getRefreshExpiration()));
-
         response.setStatus(HttpServletResponse.SC_OK);
     }
 
@@ -97,14 +97,12 @@ public class CustomLoginFilter extends UsernamePasswordAuthenticationFilter {
         // 사용자 엔티티 조회
         User user = userRepository.findBySchoolEmail(schoolEmail)
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다"));
-
     
         // 새로운 RefreshEntity 생성
         RefreshEntity refreshEntity = RefreshEntity.builder()
                 .token(refresh)
                 .expiration(refreshExpireTime)
                 .user(user) // User 객체 연결
-
                 .build();
     
         // 리프레시 토큰 저장
@@ -112,20 +110,18 @@ public class CustomLoginFilter extends UsernamePasswordAuthenticationFilter {
     }
     
 
-
     private Cookie createCookie(String key, String value, Long refreshExpireTime) {
         Cookie cookie = new Cookie(key, value);
         cookie.setHttpOnly(true);
         cookie.setMaxAge(Math.toIntExact(refreshExpireTime / 1000));
-        cookie.setPath("/");
-
+        //cookie.setPath("/");
         return cookie;
     }
 
     //로그인 실패시 실행하는 메소드
     @Override
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) {
-        log.info("[unsuccessfulAuthentication] 로그인 실패");
+        log.info("[successfulAuthentication] 로그인 실패");
         response.setStatus(401);
     }
 }

@@ -1,23 +1,18 @@
 package com.metlab_project.backend.domain.entity.user;
 
-import java.util.Collection;
-import java.util.Collections;
-
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import java.util.ArrayList;
+import java.util.Collection;
 
 @RequiredArgsConstructor
-@Slf4j
 public class CustomUserDetails implements UserDetails {
     private final User user;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-
         Collection<GrantedAuthority> collection = new ArrayList<>();
 
         // 역할이 null이 아닐 경우에만 추가
@@ -29,7 +24,6 @@ public class CustomUserDetails implements UserDetails {
         }
 
         return collection;
-
     }
 
     public User getUser() {
@@ -64,13 +58,5 @@ public class CustomUserDetails implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
-    }
-
-    @Override
-    public String toString() {
-        return "CustomUserDetails{" +
-                "schoolEmail='" + getUsername() + '\'' +
-                ", authorities=" + getAuthorities() +
-                '}';
     }
 }

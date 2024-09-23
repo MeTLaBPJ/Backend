@@ -1,31 +1,13 @@
 package com.metlab_project.backend.domain.entity.user;
 
+import com.metlab_project.backend.domain.entity.ChatRoom;
+import com.metlab_project.backend.domain.entity.Message;
+import jakarta.persistence.*;
+import lombok.*;
+
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-
-import com.metlab_project.backend.domain.entity.ChatRoom;
-import com.metlab_project.backend.domain.entity.Message;
-
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Entity
 @Getter
@@ -33,7 +15,7 @@ import lombok.Setter;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "user")
+@Table(name = "User")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -49,7 +31,7 @@ public class User {
     private String nickname;
 
     @Builder.Default
-    @Column(name = "tickets")
+    @Column(name = "ticket")
     private Integer tickets = 3;
 
     private LocalDate birthday;
@@ -66,17 +48,11 @@ public class User {
     @Column(length = 30)
     private String department;
 
-    @Column(name = "chatroom_id")
-    private Integer chatroomId;
-
     @Column(length = 10)
     private String mbti;
 
     @Column(columnDefinition = "TEXT")
     private String bio;
-
-    @Column(length = 255)
-    private String profileImage;
 
     private String blacklist;
 
@@ -99,10 +75,6 @@ public class User {
 
     @OneToMany(mappedBy = "user")
     private List<Message> messages;
-
-    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "user_information_id")
-    private UserInformation userInformation;
 
     public void addChatRoom(ChatRoom chatRoom) {
         this.chatRooms.add(chatRoom);

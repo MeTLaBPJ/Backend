@@ -1,30 +1,19 @@
 package com.metlab_project.backend.domain.dto.chatroom.req;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Getter;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-@Getter
+@Data
 @Builder
+@NoArgsConstructor
 @AllArgsConstructor
 public class ChatroomCreateRequest {
-
-    @NotBlank(message = "Title is required")
-    @Size(max = 100, message = "Title must be less than 100 characters")
-    private String title;
-
-    @NotBlank(message = "SubTitle is required")
-    @Size(max = 100, message = "SubTitle must be less than 100 characters")
-    private String subTitle;
-
-    private String profileImage;
-
-    @NotNull(message = "MaleCount is required")
-    private Integer maleCount;
-
-    @NotNull(message = "FemaleCount is required")
-    private Integer femaleCount;
+    // 채팅룸 생성 ResponseDTO
+    private String chatroomName;
+    private LocalDateTime deadline;
+    private String hashtags;
+    private Integer maxUser;
 }

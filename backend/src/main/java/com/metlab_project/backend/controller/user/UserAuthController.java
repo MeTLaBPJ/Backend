@@ -20,19 +20,18 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @Slf4j
 @RestController
-@RequestMapping("/api/auth")
 public class UserAuthController {
 
     private final JoinService joinService;
     private final ReissueService reissueService;
     private final EmailService emailService;
-
-    @PostMapping("/login")
+    
+    @PostMapping("/api/users/login")
     public ResponseEntity<?> login(@RequestBody LoginRequestDto loginRequestDto) {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/logout")
+    @PostMapping("/api/users/logout")
     public ResponseEntity<?> logout() {
         return ResponseEntity.ok().build();
     }
@@ -42,22 +41,16 @@ public class UserAuthController {
     public ResponseEntity<?> mailConfirm(@RequestParam("email") String email) throws Exception {
         return ResponseEntity.ok(emailService.sendSimpleMessage(email));
     }
-
+    
 
     @PostMapping("/sign-up/email/check")
-    public ResponseEntity<?> mailConfirmCheck(@RequestBody Map<String, String> request) throws Exception {
-        String email = request.get("email");
-        String code = request.get("key"); // "key"를 code로 사용
+public ResponseEntity<?> mailConfirmCheck(@RequestBody Map<String, String> request) throws Exception {
+    String email = request.get("email");
+    String code = request.get("key"); // "key"를 code로 사용
 
-        // 인증 코드 확인 로직
-        return ResponseEntity.ok(joinService.confirmMailCode(email, code));
-    }
-
-    @GetMapping("isExist/{nickname}")
-    public ResponseEntity<?> checkNickname(@PathVariable("nickname") String nickname)
-    {
-        return ResponseEntity.ok(joinService.checkNickname(nickname));
-    }
+    // 인증 코드 확인 로직
+    return ResponseEntity.ok(joinService.confirmMailCode(email, code));
+}
 
     @GetMapping("isExist/{nickname}")
     public ResponseEntity<?> checkNickname(@PathVariable("nickname") String nickname)
@@ -66,7 +59,6 @@ public class UserAuthController {
     }
 
     @PostMapping("/api/users/join")
-
     public ResponseEntity<?> joinProcess(@Valid @RequestBody UserJoinRequestDto userJoinRequestDto) {
 
         log.info("[joinProcess] schoolEmail: {}", userJoinRequestDto.getSchoolEmail());
@@ -76,8 +68,9 @@ public class UserAuthController {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/reissue")
+     @PostMapping("/api/users/reissue")
     public ResponseEntity<?> reissue(HttpServletRequest request, HttpServletResponse response) {
         return reissueService.reissueRefreshToken(request, response);
     }
+
 }
