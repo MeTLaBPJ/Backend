@@ -89,7 +89,7 @@ public class CustomLogoutFilter extends GenericFilterBean {
             throws IOException, ServletException {
         // 로그아웃 요청이 /api/users/logout으로 와야 하고, 메서드는 POST여야 함
         final String requestUri = request.getRequestURI();
-        if (!"/api/users/logout".equals(requestUri)) {
+        if (!"/api/auth/logout".equals(requestUri)) {
             filterChain.doFilter(request, response);
             return true;
         }

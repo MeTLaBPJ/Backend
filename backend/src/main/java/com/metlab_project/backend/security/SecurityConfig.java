@@ -24,7 +24,6 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
-
 import java.util.Arrays;
 import java.util.List;
 
@@ -42,13 +41,12 @@ public class SecurityConfig {
     private final BlacklistTokenService blacklistTokenService;
     private static final List<String> whiteListUrl = Arrays.asList(
             "/api/auth/login",
-            "/sign-up/email",
-            "/api/auth/register",
+            "/api/auth/logout",
+            "/api/auth/sign-up",
+            "/api/auth/sign-up/email",
+            "/api/auth/sign-up/check",
             "/api/**",
             "/error/**",
-            "/api/users/join",
-            "/api/users/login",
-            "/sign-up/email/check",
             "/isExist/**"
     );
 
