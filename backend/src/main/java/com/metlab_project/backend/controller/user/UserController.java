@@ -1,7 +1,9 @@
 package com.metlab_project.backend.controller.user;
 
 import com.metlab_project.backend.domain.dto.user.res.UserInfoResponse;
+
 import com.metlab_project.backend.domain.dto.user.req.UserInfoRequest;
+
 import com.metlab_project.backend.domain.entity.user.CustomUserDetails;
 import com.metlab_project.backend.service.user.UserService;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -37,5 +39,6 @@ public class UserController {
 
         return userService.updateUserInfo(schoolEmail, updatedUserInfo);
     }
+
 
 }

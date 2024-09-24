@@ -22,7 +22,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService implements UserDetailsService{
     private final UserRepository userRepository;
 
-
     public UserInfoResponse getUserInfoBySchoolEmail(String schoolEmail){
         User user = userRepository.findBySchoolEmail(schoolEmail)
                 .orElseThrow(() -> new BadCredentialsException("Invalid Email"));
@@ -38,6 +37,7 @@ public class UserService implements UserDetailsService{
                 .smoking(user.getSmoking())
                 .drinking(user.getDrinking())
                 .height(user.getHeight())
+                .shortIntroduce(user.getShortIntroduce())
                 .build();
 
     }
@@ -51,6 +51,8 @@ public UserDetails loadUserByUsername(String schoolEmail) throws UsernameNotFoun
 }
 
     public UserInfoResponse updateUserInfo(String schoolEmail, UserInfoRequest updatedUserInfo) {
+        System.out.println("Received updatedUserInfo: " + updatedUserInfo);
+
         User user = userRepository.findBySchoolEmail(schoolEmail)
                 .orElseThrow(() -> new EntityNotFoundException("Invalid Email: " + schoolEmail));
 
@@ -65,10 +67,13 @@ public UserDetails loadUserByUsername(String schoolEmail) throws UsernameNotFoun
         user.setHeight(updatedUserInfo.getHeight());
         user.setDrinking(updatedUserInfo.getDrinking());
         user.setSmoking(updatedUserInfo.getSmoking());
-
+        user.setShortIntroduce(updatedUserInfo.getShortIntroduce());
+       
         // 변경 사항을 저장
         userRepository.save(user);
 
+        
+        
         // 업데이트된 정보 반환
         return UserInfoResponse.builder()
                 .schoolEmail(user.getSchoolEmail())
@@ -81,6 +86,7 @@ public UserDetails loadUserByUsername(String schoolEmail) throws UsernameNotFoun
                 .height(user.getHeight())
                 .smoking(user.getSmoking())
                 .drinking(user.getDrinking())
+                .shortIntroduce(user.getShortIntroduce())
                 .build();
     }
  

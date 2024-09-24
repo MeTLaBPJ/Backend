@@ -18,7 +18,7 @@ import java.util.Map;
 @Component
 public class JwtTokenProvider {
 
-    private static final long ACCESS_TOKEN_VALIDITY_TIME = 60 * 60 * 1000; // 엑세스 토큰의 유효 기간 = 1H
+    private static final long ACCESS_TOKEN_VALIDITY_TIME = 60 * 60 * 12000; // 엑세스 토큰의 유효 기간 = 12H
     private static final long REFRESH_TOKEN_VALIDITY_TIME = 7 * 24 * 60 * 60 * 1000; // 리프레쉬 토큰의 유효 기간 = 1W
 
     private final Key accessKey; // JWT(AccessToken) - Signature

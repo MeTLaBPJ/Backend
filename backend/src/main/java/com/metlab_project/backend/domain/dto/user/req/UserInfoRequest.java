@@ -1,6 +1,7 @@
 package com.metlab_project.backend.domain.dto.user.req;
 
 
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -15,4 +16,6 @@ public class UserInfoRequest {
     private String smoking;
     private String height;
     private String drinking;
+    private String shortIntroduce;
+
 }

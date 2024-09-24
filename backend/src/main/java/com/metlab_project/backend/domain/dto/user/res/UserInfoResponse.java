@@ -1,5 +1,7 @@
 package com.metlab_project.backend.domain.dto.user.res;
 
+import org.springframework.web.multipart.MultipartFile;
+
 import com.metlab_project.backend.domain.entity.user.UserRole;
 import lombok.*;
 
@@ -13,6 +15,7 @@ public class UserInfoResponse {
     public UserInfoResponse(String schoolEmail, UserRole role) {
         this.schoolEmail = schoolEmail;
         this.role = role;
+       
     }
 
     private String schoolEmail;
@@ -27,6 +30,7 @@ public class UserInfoResponse {
     private String smoking;
     private String height;
     private String drinking;
+    private String shortIntroduce;
 
     private UserRole role;
 }

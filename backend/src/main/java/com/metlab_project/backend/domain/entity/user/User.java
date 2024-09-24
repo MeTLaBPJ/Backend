@@ -59,9 +59,13 @@ public class User {
 
     @Column(length = 30)
     private String drinking;
-    
+
     @Column(length = 30)
     private String smoking;
+
+    @Column(length = 30)
+    private String shortIntroduce;
+
 
 
     private String blacklist;
@@ -70,7 +74,6 @@ public class User {
 
     private Boolean isblocked;
 
-    
 
     @Enumerated(EnumType.STRING)
     @Column(length = 20)
