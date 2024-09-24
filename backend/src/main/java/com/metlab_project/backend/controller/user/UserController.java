@@ -22,7 +22,7 @@ public class UserController {
     }
 
     // 유저 정보 가져옴
-    @GetMapping()
+    @GetMapping("/info")
     public UserInfoResponse getUserInfo() {
         // 인증된 사용자의 정보를 SecurityContextHolder에서 가져옴
         CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -31,7 +31,7 @@ public class UserController {
         return userService.getUserInfoBySchoolEmail(schoolEmail);
     }
         // 유저 정보 수정
-    @PutMapping()
+    @PutMapping("/update")
     public UserInfoResponse updateUserInfo(@RequestBody UserInfoRequest updatedUserInfo) {
         // 인증된 사용자의 정보를 SecurityContextHolder에서 가져옴
         CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
