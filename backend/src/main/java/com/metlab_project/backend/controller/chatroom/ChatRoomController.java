@@ -2,7 +2,7 @@ package com.metlab_project.backend.controller.chatroom;
 
 import java.util.List;
 
-import com.metlab_project.backend.domain.dto.chatroom.res.ChatRoomDetailInChatResponse;
+import com.metlab_project.backend.domain.dto.chatroom.res.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -14,8 +14,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.metlab_project.backend.domain.dto.chatroom.req.ChatroomCreateRequest;
-import com.metlab_project.backend.domain.dto.chatroom.res.ChatRoomResponse;
-import com.metlab_project.backend.domain.dto.chatroom.res.MemberResponse;
 import com.metlab_project.backend.domain.entity.Message;
 import com.metlab_project.backend.service.chatroom.ChatRoomService;
 
@@ -34,22 +32,21 @@ public class ChatRoomController {
     @GetMapping("/list")
     @Operation(summary = "모든 채팅룸 불러오기", description = "모든 채팅룸을 불러옵니다.")
     public ResponseEntity<?> getAllChatroom() {
-        List<ChatRoomResponse> response = chatRoomService.getAllChatrooms();
-        log.info("{}", response);
+        ChatRoomInfosResponse response = chatRoomService.getAllChatrooms();
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/participants/{chatroomid}")
     @Operation(summary = "채팅룸 참여 유저 불러오기", description = "특정 채팅룸의 참여자 목록을 불러옵니다.")
     public ResponseEntity<?> getParticipants(@PathVariable("chatroomid") Integer chatroomId) {
-        List<MemberResponse> response = chatRoomService.getChatRoomDetail(chatroomId).getMembers();
+        ChatRoomMembersResponse response = chatRoomService.getMembers(chatroomId);
         return ResponseEntity.ok(response);
     }
 
     @PostMapping
     @Operation(summary = "채팅룸 생성하기", description = "채팅룸을 생성합니다.")
     public ResponseEntity<?> createChatroom(@Valid @RequestBody ChatroomCreateRequest request) {
-        ChatRoomResponse response = chatRoomService.createChatroom(request);
+        boolean response = chatRoomService.createChatroom(request);
         return ResponseEntity.ok(response);
     }
 
@@ -63,7 +60,7 @@ public class ChatRoomController {
     @GetMapping("/{chatroomid}/messages")
     @Operation(summary = "채팅룸 내역 가져오기", description = "특정 채팅룸의 채팅 내역을 가져옵니다.")
     public ResponseEntity<?> getChatMessages(@PathVariable("chatroomid") Integer chatroomId) {
-        List<Message> response = chatRoomService.getChatMessages(chatroomId);
+        ChatRoomMessageResponse response = chatRoomService.getChatMessages(chatroomId);
         return ResponseEntity.ok(response);
     }
 

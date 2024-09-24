@@ -17,5 +17,5 @@ public class ChatRoomResponse {
     private Integer maleCount;
     private Integer femaleCount;
     private String profileImage;
-    private Boolean hasStarted;
+    private String status;
 }

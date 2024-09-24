@@ -22,6 +22,9 @@ public class ChatroomCreateRequest {
 
     private String profileImage;
 
+    @NotNull(message = "MaxMembers is required")
+    private Integer maxMembers;
+
     @NotNull(message = "MaleCount is required")
     private Integer maleCount;
 

@@ -76,7 +76,6 @@ public class ChatRoom {
         WAITING,
         ACTIVE
     }
-
     @PrePersist
     public void setDefaultDeadline() {
         if (this.deadline == null) {
