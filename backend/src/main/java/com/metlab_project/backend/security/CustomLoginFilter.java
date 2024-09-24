@@ -40,7 +40,7 @@ public class CustomLoginFilter extends UsernamePasswordAuthenticationFilter {
         this.jwtTokenProvider = jwtTokenProvider;
         this.jwtTimeComponent = jwtTimeComponent;
         this.userRepository = userRepository;
-        setFilterProcessesUrl("/api/users/login");
+        setFilterProcessesUrl("/api/auth/login");
     }
 
     @Override
