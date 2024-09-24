@@ -97,7 +97,7 @@ public class JwtTokenProvider {
         Cookie cookie = new Cookie("REFRESH_TOKEN", refreshToken);
         cookie.setHttpOnly(true);
         // cookie.setSecure(true); // HTTPS를 사용하는 경우에만 true로 설정
-        cookie.setPath("http://localhost:3000");
+        cookie.setPath("/");
         cookie.setMaxAge((int) (REFRESH_TOKEN_VALIDITY_TIME / 1000)); // 쿠키 유효 기간 (초 단위)
         return cookie;
     }

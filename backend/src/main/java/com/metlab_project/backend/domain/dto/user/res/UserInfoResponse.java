@@ -24,6 +24,9 @@ public class UserInfoResponse {
     private String department;
     private String birthday;
     private String mbti;
+    private String smoking;
+    private String height;
+    private String drinking;
 
     private UserRole role;
 }

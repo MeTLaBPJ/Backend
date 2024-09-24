@@ -1,6 +1,7 @@
 package com.metlab_project.backend.controller.user;
 
 import com.metlab_project.backend.domain.dto.user.res.UserInfoResponse;
+import com.metlab_project.backend.domain.dto.user.req.UserInfoRequest;
 import com.metlab_project.backend.domain.entity.user.CustomUserDetails;
 import com.metlab_project.backend.service.user.UserService;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -29,7 +30,7 @@ public class UserController {
     }
         // 유저 정보 수정
     @PutMapping()
-    public UserInfoResponse updateUserInfo(@RequestBody UserInfoResponse updatedUserInfo) {
+    public UserInfoResponse updateUserInfo(@RequestBody UserInfoRequest updatedUserInfo) {
         // 인증된 사용자의 정보를 SecurityContextHolder에서 가져옴
         CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String schoolEmail = userDetails.getUser().getSchoolEmail();

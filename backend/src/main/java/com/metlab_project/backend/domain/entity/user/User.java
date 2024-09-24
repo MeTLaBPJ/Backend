@@ -54,11 +54,23 @@ public class User {
     @Column(columnDefinition = "TEXT")
     private String bio;
 
+    @Column(length = 30)
+    private String height;
+
+    @Column(length = 30)
+    private String drinking;
+    
+    @Column(length = 30)
+    private String smoking;
+
+
     private String blacklist;
 
     private String refreshtoken;
 
     private Boolean isblocked;
+
+    
 
     @Enumerated(EnumType.STRING)
     @Column(length = 20)

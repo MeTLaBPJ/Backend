@@ -1,9 +1,11 @@
 package com.metlab_project.backend.service.user;
 
 import com.metlab_project.backend.domain.dto.user.res.UserInfoResponse;
+import com.metlab_project.backend.domain.dto.user.req.UserInfoRequest;
 import com.metlab_project.backend.domain.entity.user.CustomUserDetails;
 import com.metlab_project.backend.domain.entity.user.User;
 import com.metlab_project.backend.repository.user.UserRepository;
+import com.metlab_project.backend.domain.dto.user.res.MyPageResponseDto;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService implements UserDetailsService{
     private final UserRepository userRepository;
 
+
     public UserInfoResponse getUserInfoBySchoolEmail(String schoolEmail){
         User user = userRepository.findBySchoolEmail(schoolEmail)
                 .orElseThrow(() -> new BadCredentialsException("Invalid Email"));
@@ -32,6 +35,9 @@ public class UserService implements UserDetailsService{
                 .college(user.getCollege())
                 .department(user.getDepartment())
                 .mbti(user.getMbti() != null ? user.getMbti() : "Unknown")
+                .smoking(user.getSmoking())
+                .drinking(user.getDrinking())
+                .height(user.getHeight())
                 .build();
 
     }
@@ -44,7 +50,7 @@ public UserDetails loadUserByUsername(String schoolEmail) throws UsernameNotFoun
     return new CustomUserDetails(user);
 }
 
-    public UserInfoResponse updateUserInfo(String schoolEmail, UserInfoResponse updatedUserInfo) {
+    public UserInfoResponse updateUserInfo(String schoolEmail, UserInfoRequest updatedUserInfo) {
         User user = userRepository.findBySchoolEmail(schoolEmail)
                 .orElseThrow(() -> new EntityNotFoundException("Invalid Email: " + schoolEmail));
 
@@ -55,8 +61,10 @@ public UserDetails loadUserByUsername(String schoolEmail) throws UsernameNotFoun
 
         // 유저 정보 업데이트
         user.setNickname(updatedUserInfo.getNickname());
-        user.setGender(updatedUserInfo.getGender());
         user.setMbti(updatedUserInfo.getMbti());
+        user.setHeight(updatedUserInfo.getHeight());
+        user.setDrinking(updatedUserInfo.getDrinking());
+        user.setSmoking(updatedUserInfo.getSmoking());
 
         // 변경 사항을 저장
         userRepository.save(user);
@@ -70,8 +78,12 @@ public UserDetails loadUserByUsername(String schoolEmail) throws UsernameNotFoun
                 .college(user.getCollege())
                 .department(user.getDepartment())
                 .mbti(user.getMbti() != null ? user.getMbti() : "Unknown")
+                .height(user.getHeight())
+                .smoking(user.getSmoking())
+                .drinking(user.getDrinking())
                 .build();
     }
+ 
 
     public String getRefreshToken(String schoolEmail){
         User user = userRepository.findBySchoolEmail(schoolEmail)
