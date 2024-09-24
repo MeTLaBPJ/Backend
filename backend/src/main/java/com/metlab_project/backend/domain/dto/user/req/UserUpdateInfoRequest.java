@@ -1,7 +1,10 @@
 package com.metlab_project.backend.domain.dto.user.req;
 
 import jakarta.validation.constraints.NotBlank;
-import lombok.*;
+import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Data
 @Getter

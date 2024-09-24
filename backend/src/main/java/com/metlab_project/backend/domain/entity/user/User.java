@@ -33,7 +33,7 @@ import lombok.Setter;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "user")
+@Table(name = "User")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -75,8 +75,20 @@ public class User {
     @Column(columnDefinition = "TEXT")
     private String bio;
 
-    @Column(length = 255)
-    private String profileImage;
+    @Column(length = 30)
+    private String profile;
+
+    @Column(length = 30)
+    private String height;
+
+    @Column(length = 30)
+    private String drinking;
+
+    @Column(length = 30)
+    private String smoking;
+
+    @Column(length = 30)
+    private String shortIntroduce;
 
     private String blacklist;
 

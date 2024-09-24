@@ -1,7 +1,20 @@
 package com.metlab_project.backend.service.chatroom;
 
-import com.metlab_project.backend.domain.dto.chatroom.res.*;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+
 import com.metlab_project.backend.domain.dto.chatroom.req.ChatroomCreateRequest;
+import com.metlab_project.backend.domain.dto.chatroom.res.ChatRoomDetailInChatResponse;
+import com.metlab_project.backend.domain.dto.chatroom.res.ChatRoomDetailResponse;
+import com.metlab_project.backend.domain.dto.chatroom.res.ChatRoomInfosResponse;
+import com.metlab_project.backend.domain.dto.chatroom.res.ChatRoomMembersResponse;
+import com.metlab_project.backend.domain.dto.chatroom.res.ChatRoomMessageResponse;
+import com.metlab_project.backend.domain.dto.chatroom.res.ChatRoomResponse;
+import com.metlab_project.backend.domain.dto.chatroom.res.MemberResponse;
 import com.metlab_project.backend.domain.dto.user.res.UserInfoResponse;
 import com.metlab_project.backend.domain.entity.ChatRoom;
 import com.metlab_project.backend.domain.entity.Message;
@@ -10,17 +23,10 @@ import com.metlab_project.backend.exception.CustomErrorCode;
 import com.metlab_project.backend.exception.CustomException;
 import com.metlab_project.backend.repository.chatroom.ChatRoomRepository;
 import com.metlab_project.backend.repository.message.MessageRepository;
-
-
 import com.metlab_project.backend.repository.user.UserRepository;
 import com.metlab_project.backend.service.user.UserService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -75,7 +81,7 @@ public class ChatRoomService {
                 user.getDepartment(),
                 user.getStudentId(),
                 user.getNickname(),
-                user.getProfileImage()
+                user.getProfile()
         );
     }
     public List<ChatRoomResponse> getMyChatrooms() {
@@ -111,7 +117,7 @@ public class ChatRoomService {
                         user.getDepartment(),
                         user.getStudentId(),
                         user.getNickname(),
-                        user.getProfileImage()))
+                        user.getProfile()))
                 .collect(Collectors.toList());
 
         return new ChatRoomDetailResponse(members);
@@ -159,7 +165,7 @@ public class ChatRoomService {
                 .orElseThrow(() -> new CustomException(CustomErrorCode.CHATROOM_NOT_FOUND, "Chat room with ID " + chatroomId + " not found"));
 
         List<MemberResponse> members = chatRoom.getUsers().stream()
-                .map(user -> new MemberResponse(user.getGender(), user.getDepartment(), user.getStudentId(), user.getNickname(), user.getProfileImage()))
+                .map(user -> new MemberResponse(user.getGender(), user.getDepartment(), user.getStudentId(), user.getNickname(), user.getProfile()))
                 .toList();
 
         int possibleEnterNumber = chatRoom.getMaxMembers() - chatRoom.getTotalParticipant();

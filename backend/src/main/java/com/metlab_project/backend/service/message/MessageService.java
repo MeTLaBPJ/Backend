@@ -3,10 +3,10 @@ package com.metlab_project.backend.service.message;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.metlab_project.backend.domain.dto.message.req.MessageDTO;
 import com.metlab_project.backend.domain.entity.ChatRoom;
 import com.metlab_project.backend.domain.entity.Message;
 import com.metlab_project.backend.domain.entity.user.User;
-import com.metlab_project.backend.domain.dto.message.req.MessageDTO;
 import com.metlab_project.backend.exception.CustomErrorCode;
 import com.metlab_project.backend.exception.CustomException;
 import com.metlab_project.backend.repository.chatroom.ChatRoomRepository;

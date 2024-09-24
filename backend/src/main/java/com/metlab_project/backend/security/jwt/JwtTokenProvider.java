@@ -1,24 +1,26 @@
 package com.metlab_project.backend.security.jwt;
 
-import com.metlab_project.backend.domain.dto.user.res.UserInfoResponse;
-import com.metlab_project.backend.domain.entity.user.UserRole;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.security.Keys;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
-import jakarta.servlet.http.Cookie;
-
 import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
+import com.metlab_project.backend.domain.dto.user.res.UserInfoResponse;
+import com.metlab_project.backend.domain.entity.user.UserRole;
+
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.Cookie;
+
 @Component
 public class JwtTokenProvider {
 
-    private static final long ACCESS_TOKEN_VALIDITY_TIME = 60 * 60 * 1000; // 엑세스 토큰의 유효 기간 = 1H
+    private static final long ACCESS_TOKEN_VALIDITY_TIME = 60 * 60 * 12000; // 엑세스 토큰의 유효 기간 = 12H
     private static final long REFRESH_TOKEN_VALIDITY_TIME = 7 * 24 * 60 * 60 * 1000; // 리프레쉬 토큰의 유효 기간 = 1W
 
     private final Key accessKey; // JWT(AccessToken) - Signature

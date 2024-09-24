@@ -45,8 +45,11 @@ public class UserJoinRequestDto {
     private String department;
 
     @Schema(description = "유저의 생일", example = "2003-06-24")
-    @NotNull(message = "birthday is null")
-    @NotEmpty(message = "birthday is empty")
     private String birthday;
+
+    @Schema(description = "유저의 프로필", example = "0")
+    @NotNull(message = "profile is null")
+    @NotEmpty(message = "profile is empty")
+    private String profile;
    
 }

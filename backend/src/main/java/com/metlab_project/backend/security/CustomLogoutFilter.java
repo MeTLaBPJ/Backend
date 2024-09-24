@@ -5,7 +5,6 @@ import java.io.IOException;
 import org.springframework.web.filter.GenericFilterBean;
 
 import com.metlab_project.backend.repository.jwt.RefreshTokenRepository;
-import com.metlab_project.backend.security.jwt.JwtTokenProvider;
 import com.metlab_project.backend.security.jwt.JwtTokenValidator;
 
 import jakarta.servlet.FilterChain;
@@ -22,7 +21,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class CustomLogoutFilter extends GenericFilterBean {
 
-    private final JwtTokenProvider jwtTokenProvider;
     private final JwtTokenValidator jwtTokenValidator;
     private final RefreshTokenRepository refreshTokenRepository;
 
@@ -89,7 +87,7 @@ public class CustomLogoutFilter extends GenericFilterBean {
             throws IOException, ServletException {
         // 로그아웃 요청이 /api/users/logout으로 와야 하고, 메서드는 POST여야 함
         final String requestUri = request.getRequestURI();
-        if (!"/api/auth/logout".equals(requestUri)) {
+        if (!"/api/users/logout".equals(requestUri)) {
             filterChain.doFilter(request, response);
             return true;
         }

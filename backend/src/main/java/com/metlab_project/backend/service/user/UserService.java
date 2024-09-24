@@ -1,8 +1,6 @@
 package com.metlab_project.backend.service.user;
 
-import com.metlab_project.backend.domain.entity.ChatRoom;
-import com.metlab_project.backend.domain.entity.user.CustomUserDetails;
-import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -11,9 +9,10 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.metlab_project.backend.domain.dto.user.req.UserInfoRequest;
 import com.metlab_project.backend.domain.dto.user.res.UserInfoResponse;
-
-
+import com.metlab_project.backend.domain.entity.ChatRoom;
+import com.metlab_project.backend.domain.entity.user.CustomUserDetails;
 import com.metlab_project.backend.domain.entity.user.User;
 import com.metlab_project.backend.domain.entity.user.UserInformation;
 import com.metlab_project.backend.exception.CustomErrorCode;
@@ -21,12 +20,15 @@ import com.metlab_project.backend.exception.CustomException;
 import com.metlab_project.backend.repository.chatroom.ChatRoomRepository;
 import com.metlab_project.backend.repository.user.UserRepository;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class UserService implements UserDetailsService{
-
+public class UserService implements UserDetailsService {
     private final UserRepository userRepository;
     private final ChatRoomRepository chatRoomRepository;
 
@@ -57,8 +59,34 @@ public class UserService implements UserDetailsService{
         return getUserInfoBySchoolEmail(schoolEmail);
     }
 
-    public UserInfoResponse updateUserDetail(UserInfoResponse updatedUserInfo) {
-        String schoolEmail = getUserEmail();
+    public UserInfoResponse updateUserInfo(String schoolEmail, UserInfoRequest updatedUserInfo) {
+        System.out.println("Received updatedUserInfo: " + updatedUserInfo);
+
+        User user = userRepository.findBySchoolEmail(schoolEmail)
+                .orElseThrow(() -> new EntityNotFoundException("Invalid Email: " + schoolEmail));
+
+        // 필드 유효성 검사
+        if (updatedUserInfo.getNickname() == null || updatedUserInfo.getNickname().isEmpty()) {
+            throw new IllegalArgumentException("Nickname cannot be empty");
+        }
+
+        // 유저 정보 업데이트
+        user.setNickname(updatedUserInfo.getNickname());
+        user.setMbti(updatedUserInfo.getMbti());
+        user.setHeight(updatedUserInfo.getHeight());
+        user.setDrinking(updatedUserInfo.getDrinking());
+        user.setSmoking(updatedUserInfo.getSmoking());
+        user.setShortIntroduce(updatedUserInfo.getShortIntroduce());
+        user.setProfile(updatedUserInfo.getProfile());
+
+        // 변경 사항을 저장
+        userRepository.save(user);
+
+        // 업데이트된 정보 반환
+        return buildUserInfoResponse(user, user.getUserInformation());
+    }
+
+    public UserInfoResponse updateUserDetail(String schoolEmail, UserInfoResponse updatedUserInfo) {
         validateUserAccess(schoolEmail);
 
         User user = userRepository.findBySchoolEmail(schoolEmail)
@@ -71,7 +99,7 @@ public class UserService implements UserDetailsService{
 
         user.setNickname(updatedUserInfo.getNickname());
         userInformation.setMbti(updatedUserInfo.getMbti());
-        userInformation.setProfileImage(updatedUserInfo.getProfileImage());
+        userInformation.setProfileImage(updatedUserInfo.getProfile());
         userInformation.setShortIntroduce(updatedUserInfo.getShortIntroduce());
         userInformation.setHeight(updatedUserInfo.getHeight());
         userInformation.setDrinking(updatedUserInfo.getDrinking());
@@ -79,18 +107,10 @@ public class UserService implements UserDetailsService{
 
         userRepository.save(user);
 
-        return UserInfoResponse.builder()
-                .nickname(user.getNickname())
-                .mbti(user.getMbti() != null ? user.getMbti() : "Unknown")
-                .profileImage(userInformation.getProfileImage())
-                .shortIntroduce(userInformation.getShortIntroduce())
-                .height(userInformation.getHeight())
-                .drinking(userInformation.getDrinking())
-                .smoking(userInformation.getSmoking())
-                .build();
+        return buildUserInfoResponse(user, userInformation);
     }
 
-    public UserInfoResponse getAnotherUserDetail(String nickname, Integer chatRoomId){
+    public UserInfoResponse getAnotherUserDetail(String nickname, Integer chatRoomId) {
         String schoolEmail = getUserEmail();
         validateUserAccess(schoolEmail);
 
@@ -104,23 +124,8 @@ public class UserService implements UserDetailsService{
             throw new CustomException(CustomErrorCode.USER_NOT_FOUND, "User information with Nickname " + nickname + " not found");
         }
 
-        return UserInfoResponse.builder()
-                .schoolEmail(user.getSchoolEmail())
-                .profileImage(userInformation.getProfileImage())
-                .nickname(user.getNickname())
-                .department(user.getDepartment())
-                .studentId(user.getStudentId())
-                .shortIntroduce(userInformation.getShortIntroduce())
-                .mbti(user.getMbti() != null ? user.getMbti() : "Unknown")
-                .height(userInformation.getHeight())
-                .drinking(userInformation.getDrinking())
-                .smoking(userInformation.getSmoking())
-                .profileImage(userInformation.getProfileImage())
-                .build();
+        return buildUserInfoResponse(user, userInformation);
     }
-
-
-
 
     public void deleteUserInfo() {
         String schoolEmail = getUserEmail();
@@ -128,6 +133,13 @@ public class UserService implements UserDetailsService{
                 .orElseThrow(() -> new CustomException(CustomErrorCode.USER_NOT_FOUND, "User with Email " + schoolEmail + " not found"));
 
         userRepository.delete(user);
+    }
+
+    public String getRefreshToken(String schoolEmail) {
+        User user = userRepository.findBySchoolEmail(schoolEmail)
+                .orElseThrow(() -> new BadCredentialsException("Invalid Email"));
+
+        return user.getRefreshtoken();
     }
 
     private void validateUserAccess(String schoolEmail) {
@@ -139,8 +151,6 @@ public class UserService implements UserDetailsService{
 
     private String getUserEmail() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        //log.info("[Auth] {}, {}", authentication, authentication.getName());
-
         return authentication.getName();
     }
 
@@ -157,7 +167,7 @@ public class UserService implements UserDetailsService{
                 .height(userInformation.getHeight())
                 .drinking(userInformation.getDrinking())
                 .smoking(userInformation.getSmoking())
-                .profileImage(userInformation.getProfileImage())
+                .profile(userInformation.getProfileImage())
                 .build();
     }
 
@@ -176,7 +186,6 @@ public class UserService implements UserDetailsService{
         boolean isTargetUserInRoom = targetUser.getChatRooms().stream()
                 .anyMatch(room -> room.getId().equals(chatRoomId));
 
-        // 두 유저가 모두 해당 채팅방에 속해 있지 않으면 예외 발생
         if (!isRequestingUserInRoom || !isTargetUserInRoom) {
             throw new CustomException(CustomErrorCode.FORBIDDEN_ACCESS_TO_OTHER_USER_INFO, "Only users' information in the same chat room is accessible");
         }

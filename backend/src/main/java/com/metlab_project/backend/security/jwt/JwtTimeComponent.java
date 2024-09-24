@@ -1,8 +1,9 @@
 package com.metlab_project.backend.security.jwt;
 
-import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+
+import lombok.Getter;
 
 /**
  * LoginFilter가 Component가 아니기 때문에 @Autowired로 주입이 불가능하기

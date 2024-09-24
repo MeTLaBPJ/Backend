@@ -1,14 +1,22 @@
 package com.metlab_project.backend.controller.user;
 
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.metlab_project.backend.domain.dto.user.res.UserInfoResponse;
-import com.metlab_project.backend.security.jwt.JwtTokenProvider;
+import com.metlab_project.backend.domain.entity.user.CustomUserDetails;
 import com.metlab_project.backend.service.user.UserService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/user")
@@ -16,20 +24,23 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
     private final UserService userService;
-    private final JwtTokenProvider jwtTokenProvider;
 
     @GetMapping("/info")
     @Operation(summary = "유저 마이페이지 정보 불러오기", description = "유저가 설정한 마이페이지에 등록될 정보를 불러옵니다.")
-    public ResponseEntity<?> getUserInfo() {
-        UserInfoResponse response = userService.getUserInfoBySchoolEmail();
-        return ResponseEntity.ok(response);
+    public UserInfoResponse getUserInfo() {
+        CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String schoolEmail = userDetails.getUser().getSchoolEmail();
+
+        return userService.getUserInfoBySchoolEmail(schoolEmail);
     }
 
-    @PutMapping("/update") // TODO 전반적인 코드 수정
+    @PutMapping("/update")
     @Operation(summary = "유저 마이페이지 정보 수정", description = "유저의 마이페이지에 존재하는 정보를 수정합니다.")
-    public ResponseEntity<?> updateUserInfo(@Valid @RequestBody UserInfoResponse request) {
-        UserInfoResponse response = userService.updateUserDetail(request);
-        return ResponseEntity.ok(response);
+    public UserInfoResponse updateUserInfo(@Valid @RequestBody UserInfoResponse request) {
+        CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String schoolEmail = userDetails.getUser().getSchoolEmail();
+
+        return userService.updateUserDetail(schoolEmail, request);
     }
 
     @GetMapping("/info/{nickname}/{chatroomid}")

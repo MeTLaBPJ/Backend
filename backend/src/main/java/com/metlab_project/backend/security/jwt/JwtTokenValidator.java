@@ -1,10 +1,19 @@
 package com.metlab_project.backend.security.jwt;
 
+import java.io.IOException;
+import java.util.Collections;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
+
+import com.metlab_project.backend.domain.dto.user.res.UserInfoResponse;
 import com.metlab_project.backend.exception.CustomErrorCode;
 import com.metlab_project.backend.exception.CustomException;
 import com.metlab_project.backend.service.jwt.BlacklistTokenService;
 import com.metlab_project.backend.service.user.UserService;
-import com.metlab_project.backend.domain.dto.user.res.UserInfoResponse;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -16,14 +25,6 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Component;
-
-import java.io.IOException;
-import java.util.Collections;
 
 @Component
 @RequiredArgsConstructor
@@ -52,7 +53,7 @@ public class JwtTokenValidator {
             return true;
         } catch (ExpiredJwtException e) {
             throw new CustomException(CustomErrorCode.TOKEN_EXPIRED);
-        } catch (SignatureException | MalformedJwtException | UnsupportedJwtException e) {
+        } catch (MalformedJwtException | UnsupportedJwtException e) {
             throw new CustomException(CustomErrorCode.TOKEN_INVALID);
         } catch (IllegalArgumentException e) {
             throw new CustomException(CustomErrorCode.TOKEN_MISSING);
@@ -69,9 +70,9 @@ public class JwtTokenValidator {
 
             return true;
         } catch (ExpiredJwtException e) {
-            throw new CustomException(CustomErrorCode.REFRESH_TOKEN_EXPIRED, e.getMessage());
+            throw new CustomException(CustomErrorCode.REFRESH_TOKEN_EXPIRED);
         } catch (SignatureException | MalformedJwtException | UnsupportedJwtException e) {
-            throw new CustomException(CustomErrorCode.TOKEN_INVALID, e.getMessage());
+            throw new CustomException(CustomErrorCode.TOKEN_INVALID);
         } catch (IllegalArgumentException e) {
             throw new CustomException(CustomErrorCode.TOKEN_MISSING);
         }

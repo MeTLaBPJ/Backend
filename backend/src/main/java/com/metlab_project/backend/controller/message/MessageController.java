@@ -1,17 +1,19 @@
 package com.metlab_project.backend.controller.message;
 
-import com.metlab_project.backend.domain.dto.message.req.MessageDTO;
-import com.metlab_project.backend.service.message.MessageService;
-import com.metlab_project.backend.domain.entity.Message;
+import java.security.Principal;
+
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.metlab_project.backend.domain.dto.message.req.MessageDTO;
+import com.metlab_project.backend.domain.entity.Message;
+import com.metlab_project.backend.service.message.MessageService;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
-import java.security.Principal;
 
 @Slf4j
 @RestController

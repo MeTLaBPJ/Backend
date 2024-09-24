@@ -1,16 +1,9 @@
 package com.metlab_project.backend.security.jwt;
 
-import com.metlab_project.backend.exception.CustomException;
-import com.metlab_project.backend.service.jwt.BlacklistTokenService;
-import com.metlab_project.backend.service.user.UserService;
-import com.metlab_project.backend.domain.entity.user.*;
-import jakarta.servlet.Filter;
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -19,9 +12,19 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
+import com.metlab_project.backend.domain.entity.user.CustomUserDetails;
+import com.metlab_project.backend.domain.entity.user.User;
+import com.metlab_project.backend.domain.entity.user.UserRole;
+import com.metlab_project.backend.exception.CustomException;
+import com.metlab_project.backend.service.user.UserService;
+
+import jakarta.servlet.Filter;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter implements Filter {
@@ -29,21 +32,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter implements Fil
     private final UserService userService;
     private final JwtTokenProvider jwtTokenProvider;
     private final JwtTokenValidator jwtTokenValidator;
-    private final BlacklistTokenService blacklistTokenService;
 
     private static final Logger logger = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
 
     private static final AntPathMatcher pathMatcher = new AntPathMatcher();
     private static final List<String> whiteListUrl = Arrays.asList(
-
-            "/api/auth/login",
-            "/api/auth/register",
-            "/sign-up/email",
-            "/api/users/join",
-            "/api/users/login",
-            "/sign-up/email/check",
-            "/isExist/**"
-
+            "/api/auth/**"
     );
 
     @Override

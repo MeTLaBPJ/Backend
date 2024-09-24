@@ -1,9 +1,5 @@
 package com.metlab_project.backend.controller.chatroom;
 
-import java.util.List;
-
-import com.metlab_project.backend.domain.dto.chatroom.res.*;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,12 +10,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.metlab_project.backend.domain.dto.chatroom.req.ChatroomCreateRequest;
-import com.metlab_project.backend.domain.entity.Message;
+import com.metlab_project.backend.domain.dto.chatroom.res.ChatRoomDetailInChatResponse;
+import com.metlab_project.backend.domain.dto.chatroom.res.ChatRoomInfosResponse;
+import com.metlab_project.backend.domain.dto.chatroom.res.ChatRoomMembersResponse;
+import com.metlab_project.backend.domain.dto.chatroom.res.ChatRoomMessageResponse;
 import com.metlab_project.backend.service.chatroom.ChatRoomService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RestController
