@@ -38,6 +38,7 @@ public class UserService implements UserDetailsService{
                 .drinking(user.getDrinking())
                 .height(user.getHeight())
                 .shortIntroduce(user.getShortIntroduce())
+                .profile(user.getProfile())
                 .build();
 
     }
@@ -68,6 +69,8 @@ public UserDetails loadUserByUsername(String schoolEmail) throws UsernameNotFoun
         user.setDrinking(updatedUserInfo.getDrinking());
         user.setSmoking(updatedUserInfo.getSmoking());
         user.setShortIntroduce(updatedUserInfo.getShortIntroduce());
+        user.setProfile(updatedUserInfo.getProfile());
+        
        
         // 변경 사항을 저장
         userRepository.save(user);
@@ -87,6 +90,7 @@ public UserDetails loadUserByUsername(String schoolEmail) throws UsernameNotFoun
                 .smoking(user.getSmoking())
                 .drinking(user.getDrinking())
                 .shortIntroduce(user.getShortIntroduce())
+                .profile(user.getProfile())
                 .build();
     }
  

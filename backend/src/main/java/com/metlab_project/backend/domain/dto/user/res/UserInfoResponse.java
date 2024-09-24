@@ -31,6 +31,7 @@ public class UserInfoResponse {
     private String height;
     private String drinking;
     private String shortIntroduce;
+    private String profile;
 
     private UserRole role;
 }

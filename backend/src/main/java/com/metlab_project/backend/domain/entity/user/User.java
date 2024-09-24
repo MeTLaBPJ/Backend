@@ -65,7 +65,10 @@ public class User {
 
     @Column(length = 30)
     private String shortIntroduce;
-
+    
+    @Column(length = 30)
+    private String profile;
+    
 
 
     private String blacklist;

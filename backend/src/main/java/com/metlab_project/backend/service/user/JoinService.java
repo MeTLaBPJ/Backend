@@ -43,6 +43,7 @@ public class JoinService {
                 .studentId(userJoinRequestDto.getStudentId())
                 .college(userJoinRequestDto.getCollege())
                 .department(userJoinRequestDto.getDepartment())
+                .profile(userJoinRequestDto.getProfile())
                 .build();
 
         userRepository.save(data);
