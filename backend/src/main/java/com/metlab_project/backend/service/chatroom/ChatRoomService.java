@@ -158,12 +158,6 @@ public class ChatRoomService {
         ChatRoom chatRoom = chatRoomRepository.findById(chatroomId)
                 .orElseThrow(() -> new CustomException(CustomErrorCode.CHATROOM_NOT_FOUND, "Chat room with ID " + chatroomId + " not found"));
 
-//        String schoolEmail = getUserEmail();
-//
-////        if (!chatRoom.getUsers().stream().anyMatch(user -> user.getSchoolEmail().equals(schoolEmail))) {
-////            throw new CustomException(CustomErrorCode.NO_AUTHORITY_IN_CHATROOM, "");
-////        }
-
         List<MemberResponse> members = chatRoom.getUsers().stream()
                 .map(user -> new MemberResponse(user.getGender(), user.getDepartment(), user.getStudentId(), user.getNickname(), user.getProfileImage()))
                 .toList();

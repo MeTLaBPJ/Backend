@@ -66,7 +66,7 @@ public class ChatRoomController {
 
     @GetMapping("/{chatroomid}")
     @Operation(summary = "특정 채팅방 상세 정보 가져오기", description = "특정 채팅방의 상세 정보를 반환합니다.")
-    public ResponseEntity<?> getChatRoomDetailInChat(@PathVariable("chatroomid") int chatroomId) {
+    public ResponseEntity<?> getChatRomDetailInChat(@PathVariable("chatroomid") int chatroomId) {
         ChatRoomDetailInChatResponse response = chatRoomService.getChatRoomDetailInChat(chatroomId);
         return ResponseEntity.ok(response);
     }
