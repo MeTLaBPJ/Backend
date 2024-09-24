@@ -122,8 +122,8 @@ public class UserService implements UserDetailsService{
 
 
 
-    public UserInfoResponse updateUserInfo(String schoolEmail, UserInfoResponse updatedUserInfo) {
-
+    public void deleteUserInfo() {
+        String schoolEmail = getUserEmail();
         User user = userRepository.findBySchoolEmail(schoolEmail)
                 .orElseThrow(() -> new CustomException(CustomErrorCode.USER_NOT_FOUND, "User with Email " + schoolEmail + " not found"));
 

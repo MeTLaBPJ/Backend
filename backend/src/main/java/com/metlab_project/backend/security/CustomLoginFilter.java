@@ -7,6 +7,7 @@ import com.metlab_project.backend.security.jwt.JwtTimeComponent;
 import com.metlab_project.backend.security.jwt.JwtTokenProvider;
 import com.metlab_project.backend.domain.entity.jwt.RefreshEntity;
 import jakarta.servlet.FilterChain;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -110,9 +111,6 @@ public class CustomLoginFilter extends UsernamePasswordAuthenticationFilter {
         // 리프레시 토큰 저장
         refreshTokenRepository.save(refreshEntity);
     }
-    
-
-
     private Cookie createCookie(String key, String value, Long refreshExpireTime) {
         Cookie cookie = new Cookie(key, value);
         cookie.setHttpOnly(true);
