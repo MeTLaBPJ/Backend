@@ -41,7 +41,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter implements Fil
             "/api/auth/sign-up",
             "/api/auth/login",
             "/api/auth/sign-up/check",
-            "/api/users/isExist/**"
+            "/api/users/isExist/**",
+            "/api/chatroom/**"
 
     );
 

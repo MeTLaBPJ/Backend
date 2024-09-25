@@ -9,6 +9,9 @@ import com.metlab_project.backend.domain.dto.user.res.MyPageResponseDto;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -92,6 +95,16 @@ public UserDetails loadUserByUsername(String schoolEmail) throws UsernameNotFoun
                 .shortIntroduce(user.getShortIntroduce())
                 .profile(user.getProfile())
                 .build();
+    }
+
+    public UserInfoResponse getUserInfoBySchoolEmail() {
+        String schoolEmail = getUserEmail();
+        return getUserInfoBySchoolEmail(schoolEmail);
+    }
+
+    private String getUserEmail() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return authentication.getName();
     }
  
 

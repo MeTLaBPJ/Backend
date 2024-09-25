@@ -1,12 +1,12 @@
 package com.metlab_project.backend.repository.email;
 
-import com.metlab_project.backend.domain.entity.email.*;
-
-
-import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 
-public interface EmailAuthRepository extends JpaRepository<EmailAuth, Long> {
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import com.metlab_project.backend.domain.entity.email.EmailAuth;
+
+public interface EmailAuthRepository extends JpaRepository<EmailAuth, String> {
     Optional<EmailAuth> findEmailAuthByEmail(String email);
     Optional<EmailAuth> findEmailAuthByKey(String key);
     boolean existsByEmail(String email);
